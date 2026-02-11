@@ -723,12 +723,16 @@ Matthew</textarea>
             function animate(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
+                
+                // Quartic Ease-Out
                 const ease = 1 - Math.pow(1 - progress, 4);
                 
+                // 1. UPDATE ROTATION
                 currentRotation = startRot + (ease * (finalRot - startRot));
-                // CHECK FOR TICKS (Precision Alignment)
-                // We add (3 * Math.PI / 2) to align the math with the Top Pointer
-                const offset = (3 * Math.PI) / 2;
+
+                // 2. SOUND CHECK (Fixed for Top Pointer & Drifting)
+                // We shift the angle by 270 degrees (3PI/2) so the math aligns with the Top Pointer
+                const offset = (3 * Math.PI) / 2; 
                 
                 const currentSeg = Math.floor((currentRotation + offset) / angleStep);
                 const lastSeg = Math.floor((lastTickAngle + offset) / angleStep);
@@ -738,8 +742,7 @@ Matthew</textarea>
                 }
                 lastTickAngle = currentRotation;
 
-
-
+                // 3. DRAW
                 drawWheel();
 
                 if (progress < 1) {
