@@ -665,7 +665,7 @@ Matthew</textarea>
 
         function idleLoop() {
             if (isIdle && !isSpinning) {
-                currentRotation += 0.0035;
+                currentRotation += 0.005;
                 drawWheel();
                 requestAnimationFrame(idleLoop);
             }
@@ -850,8 +850,7 @@ Matthew</textarea>
             // --- SOUND ENGINE ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-        function playTick() {
-        // Resume context if browser suspended it
+    function playTick() {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         
         const osc = audioCtx.createOscillator();
@@ -860,17 +859,19 @@ Matthew</textarea>
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         
-        // "Plastic Click" settings
-        osc.type = 'square'; // Square wave gives a harder "plastic" sound
-        osc.frequency.setValueAtTime(250, audioCtx.currentTime); // Lower pitch (not high pitched laser)
-        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.03); // Quick drop
+        // "Cutie" Bubble Pop Sound
+        osc.type = 'sine'; // Soft wave (instead of harsh square)
         
-        // Volume Envelope (Very short, 0.03 seconds)
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime); 
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+        // Pitch: Starts high (800Hz) and drops quickly
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
+        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+        
+        // Volume: Quick fade out
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime); 
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
         
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.03);
+        osc.stop(audioCtx.currentTime + 0.05);
     }
 
 
