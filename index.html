@@ -721,10 +721,17 @@ Matthew</textarea>
                 currentRotation = startRot + (ease * (finalRot - startRot));
                                 // CHECK FOR TICKS
                 // We calculate if we passed a segment boundary
-                if (Math.floor(currentRotation / angleStep) > Math.floor(lastTickAngle / angleStep)) {
+                                // CHECK FOR TICKS (Fixed to trigger at edge)
+                // We add angleStep/2 to shift the trigger point from center to the slice boundary
+                const shift = angleStep / 2;
+                const currentSeg = Math.floor((currentRotation + shift) / angleStep);
+                const lastSeg = Math.floor((lastTickAngle + shift) / angleStep);
+
+                if (currentSeg > lastSeg) {
                     playTick();
-                    lastTickAngle = currentRotation;
                 }
+                lastTickAngle = currentRotation;
+
 
                 drawWheel();
 
@@ -833,7 +840,8 @@ Matthew</textarea>
             // --- SOUND ENGINE ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    function playTick() {
+        function playTick() {
+        // Resume context if browser suspended it
         if (audioCtx.state === 'suspended') audioCtx.resume();
         
         const osc = audioCtx.createOscillator();
@@ -842,17 +850,19 @@ Matthew</textarea>
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         
-        // Wood-block tick sound
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(1200, audioCtx.currentTime); 
-        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.08);
+        // "Plastic Click" settings
+        osc.type = 'square'; // Square wave gives a harder "plastic" sound
+        osc.frequency.setValueAtTime(250, audioCtx.currentTime); // Lower pitch (not high pitched laser)
+        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.03); // Quick drop
         
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime); // Volume 30%
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        // Volume Envelope (Very short, 0.03 seconds)
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime); 
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
         
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
+        osc.stop(audioCtx.currentTime + 0.03);
     }
+
 
     </script>
 </body>
