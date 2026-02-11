@@ -430,7 +430,7 @@
 
     <nav>
         <div class="logo">
-            <i class="fa-solid fa-dharmachakra"></i> SpinPro
+            <i class="fa-solid fa-dharmachakra"></i> RandomSpin
         </div>
         <div class="nav-links">
             <span class="nav-link">Features</span>
