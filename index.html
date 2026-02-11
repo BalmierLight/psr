@@ -710,6 +710,8 @@ Matthew</textarea>
             const finalRot = currentRotation + distance;
             const duration = 8000;
             const startTime = performance.now();
+                        // TRACKER FOR SOUND
+            let lastTickAngle = currentRotation;
 
             function animate(currentTime) {
                 const elapsed = currentTime - startTime;
@@ -717,6 +719,13 @@ Matthew</textarea>
                 const ease = 1 - Math.pow(1 - progress, 4);
                 
                 currentRotation = startRot + (ease * (finalRot - startRot));
+                                // CHECK FOR TICKS
+                // We calculate if we passed a segment boundary
+                if (Math.floor(currentRotation / angleStep) > Math.floor(lastTickAngle / angleStep)) {
+                    playTick();
+                    lastTickAngle = currentRotation;
+                }
+
                 drawWheel();
 
                 if (progress < 1) {
@@ -820,6 +829,31 @@ Matthew</textarea>
 
         drawWheel();
         idleLoop();
+        
+            // --- SOUND ENGINE ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playTick() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        // Wood-block tick sound
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(1200, audioCtx.currentTime); 
+        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.08);
+        
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime); // Volume 30%
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+    }
+
     </script>
 </body>
 </html>
