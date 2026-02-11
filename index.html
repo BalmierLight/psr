@@ -673,6 +673,13 @@ Matthew</textarea>
 
         // --- SPIN LOGIC ---
         function spin() {
+            // --- PASTE THIS HERE ---
+            if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            // -----------------------
+            // ... rest of your code ...
+
             const participants = getParticipants();
             if (isSpinning || participants.length === 0) return;
             
@@ -719,18 +726,18 @@ Matthew</textarea>
                 const ease = 1 - Math.pow(1 - progress, 4);
                 
                 currentRotation = startRot + (ease * (finalRot - startRot));
-                                // CHECK FOR TICKS
-                // We calculate if we passed a segment boundary
-                                // CHECK FOR TICKS (Fixed to trigger at edge)
-                // We add angleStep/2 to shift the trigger point from center to the slice boundary
-                const shift = angleStep / 2;
-                const currentSeg = Math.floor((currentRotation + shift) / angleStep);
-                const lastSeg = Math.floor((lastTickAngle + shift) / angleStep);
+                // CHECK FOR TICKS (Precision Alignment)
+                // We add (3 * Math.PI / 2) to align the math with the Top Pointer
+                const offset = (3 * Math.PI) / 2;
+                
+                const currentSeg = Math.floor((currentRotation + offset) / angleStep);
+                const lastSeg = Math.floor((lastTickAngle + offset) / angleStep);
 
                 if (currentSeg > lastSeg) {
                     playTick();
                 }
                 lastTickAngle = currentRotation;
+
 
 
                 drawWheel();
