@@ -43,7 +43,7 @@
         }
 
         .logo {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 800;
             color: white;
             display: flex;
@@ -406,7 +406,7 @@
                 padding: 20px;
             }
 
-            /* --- THE FIX: Center Toolbar on Mobile --- */
+            /* Center Toolbar on Mobile */
             .toolbar {
                 justify-content: center; 
             }
@@ -430,7 +430,7 @@
 
     <nav>
         <div class="logo">
-            <i class="fa-solid fa-dharmachakra"></i> RandomSpin
+            <i class="fa-solid fa-dharmachakra"></i> RandomSpin!
         </div>
         <div class="nav-links">
             <span class="nav-link">Features</span>
@@ -452,7 +452,6 @@
             <div class="tool-btn" title="Open File"><i class="fa-regular fa-folder-open"></i></div>
             <div class="tool-btn" title="Save"><i class="fa-regular fa-floppy-disk"></i></div>
             <div class="tool-btn" title="Share"><i class="fa-solid fa-share-nodes"></i></div>
-            <div class="tool-btn" title="Settings"><i class="fa-solid fa-sliders"></i></div>
             <div class="tool-btn" title="Fullscreen"><i class="fa-solid fa-expand"></i></div>
         </div>
 
@@ -522,7 +521,7 @@ Matthew</textarea>
             <a href="#">Contact Us</a>
             <a href="#">Sitemap</a>
         </div>
-        <div>&copy; 2024 SpinPro LLC. All rights reserved.</div>
+        <div>&copy; Brought to you by RandomSpin! community :) (Coded with love).</div>
     </footer>
 
     <div id="modal-overlay">
@@ -551,7 +550,6 @@ Matthew</textarea>
         let isSpinning = false;
         let isIdle = true;
         let spinCount = 0; 
-        let hasRigged = false;
         let lastWinnerIndex = -1;
         let winnerHistory = [];
 
@@ -585,8 +583,6 @@ Matthew</textarea>
             namesInput.value = names.join('\n');
             
             spinCount = 0;
-            hasRigged = false;
-            
             drawWheel();
         }
 
@@ -596,8 +592,6 @@ Matthew</textarea>
             namesInput.value = names.join('\n');
             
             spinCount = 0;
-            hasRigged = false;
-
             drawWheel();
         }
 
@@ -665,14 +659,45 @@ Matthew</textarea>
 
         function idleLoop() {
             if (isIdle && !isSpinning) {
-                currentRotation += 0.002;
+                currentRotation += 0.0025; // Speed adjustment
                 drawWheel();
                 requestAnimationFrame(idleLoop);
             }
         }
 
+        // --- SOUND ENGINE ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTick() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            // "Cutie" Bubble Pop Sound
+            osc.type = 'sine'; 
+            
+            // Pitch: Starts high (800Hz) and drops quickly
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+            
+            // Volume: Quick fade out
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime); 
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
         // --- SPIN LOGIC ---
         function spin() {
+            if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
             const participants = getParticipants();
             if (isSpinning || participants.length === 0) return;
             
@@ -687,13 +712,17 @@ Matthew</textarea>
             const angleStep = (Math.PI * 2) / numSegments;
             let targetIndex;
 
-            // --- RIGGING LOGIC ---
-            const rigName = "A18";
-            const rigIndex = participants.indexOf(rigName);
+            // --- NEW RIGGING LOGIC (A16 -> 1st, A18 -> 2nd, A17 -> 3rd) ---
+            const idxA16 = participants.indexOf("A16");
+            const idxA18 = participants.indexOf("A18");
+            const idxA17 = participants.indexOf("A17");
 
-            if (spinCount >= 2 && rigIndex !== -1 && !hasRigged) {
-                targetIndex = rigIndex;
-                hasRigged = true;
+            if (spinCount === 1 && idxA16 !== -1) {
+                targetIndex = idxA16;
+            } else if (spinCount === 2 && idxA18 !== -1) {
+                targetIndex = idxA18;
+            } else if (spinCount === 3 && idxA17 !== -1) {
+                targetIndex = idxA17;
             } else {
                 targetIndex = Math.floor(Math.random() * numSegments);
             }
@@ -710,6 +739,8 @@ Matthew</textarea>
             const finalRot = currentRotation + distance;
             const duration = 8000;
             const startTime = performance.now();
+            
+            let lastTickAngle = currentRotation;
 
             function animate(currentTime) {
                 const elapsed = currentTime - startTime;
@@ -717,6 +748,17 @@ Matthew</textarea>
                 const ease = 1 - Math.pow(1 - progress, 4);
                 
                 currentRotation = startRot + (ease * (finalRot - startRot));
+
+                // Sound Logic
+                const offset = (3 * Math.PI) / 2; 
+                const currentSeg = Math.floor((currentRotation + offset) / angleStep);
+                const lastSeg = Math.floor((lastTickAngle + offset) / angleStep);
+
+                if (currentSeg > lastSeg) {
+                    playTick();
+                }
+                lastTickAngle = currentRotation;
+
                 drawWheel();
 
                 if (progress < 1) {
