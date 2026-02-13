@@ -581,8 +581,6 @@ Matthew</textarea>
                 [names[i], names[j]] = [names[j], names[i]];
             }
             namesInput.value = names.join('\n');
-            
-            spinCount = 0;
             drawWheel();
         }
 
@@ -590,8 +588,6 @@ Matthew</textarea>
             let names = getParticipants();
             names.sort((a, b) => a.localeCompare(b));
             namesInput.value = names.join('\n');
-            
-            spinCount = 0;
             drawWheel();
         }
 
@@ -712,20 +708,8 @@ Matthew</textarea>
             const angleStep = (Math.PI * 2) / numSegments;
             let targetIndex;
 
-            // --- NEW RIGGING LOGIC (A16 -> 1st, A18 -> 2nd, A17 -> 3rd) ---
-            const idxA16 = participants.indexOf("A16");
-            const idxA18 = participants.indexOf("A18");
-            const idxA17 = participants.indexOf("A17");
-
-            if (spinCount === 1 && idxA16 !== -1) {
-                targetIndex = idxA16;
-            } else if (spinCount === 2 && idxA18 !== -1) {
-                targetIndex = idxA18;
-            } else if (spinCount === 3 && idxA17 !== -1) {
-                targetIndex = idxA17;
-            } else {
-                targetIndex = Math.floor(Math.random() * numSegments);
-            }
+            // --- TOTALLY RANDOM LOGIC ---
+            targetIndex = Math.floor(Math.random() * numSegments);
 
             const randomOffsetFactor = 0.15 + Math.random() * 0.7;
             const targetSliceOffset = (targetIndex * angleStep) + (angleStep * randomOffsetFactor);
