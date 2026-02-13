@@ -406,7 +406,7 @@
                 padding: 20px;
             }
 
-            /* --- THE FIX: Center Toolbar on Mobile --- */
+            /* Center Toolbar on Mobile */
             .toolbar {
                 justify-content: center; 
             }
@@ -452,7 +452,6 @@
             <div class="tool-btn" title="Open File"><i class="fa-regular fa-folder-open"></i></div>
             <div class="tool-btn" title="Save"><i class="fa-regular fa-floppy-disk"></i></div>
             <div class="tool-btn" title="Share"><i class="fa-solid fa-share-nodes"></i></div>
-            <div class="tool-btn" title="Settings"><i class="fa-solid fa-sliders"></i></div>
             <div class="tool-btn" title="Fullscreen"><i class="fa-solid fa-expand"></i></div>
         </div>
 
@@ -551,7 +550,6 @@ Matthew</textarea>
         let isSpinning = false;
         let isIdle = true;
         let spinCount = 0; 
-        let hasRigged = false;
         let lastWinnerIndex = -1;
         let winnerHistory = [];
 
@@ -585,8 +583,6 @@ Matthew</textarea>
             namesInput.value = names.join('\n');
             
             spinCount = 0;
-            hasRigged = false;
-            
             drawWheel();
         }
 
@@ -596,8 +592,6 @@ Matthew</textarea>
             namesInput.value = names.join('\n');
             
             spinCount = 0;
-            hasRigged = false;
-
             drawWheel();
         }
 
@@ -665,20 +659,44 @@ Matthew</textarea>
 
         function idleLoop() {
             if (isIdle && !isSpinning) {
-                currentRotation += 0.005;
+                currentRotation += 0.0025; // Speed adjustment
                 drawWheel();
                 requestAnimationFrame(idleLoop);
             }
         }
 
+        // --- SOUND ENGINE ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTick() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            // "Cutie" Bubble Pop Sound
+            osc.type = 'sine'; 
+            
+            // Pitch: Starts high (800Hz) and drops quickly
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+            
+            // Volume: Quick fade out
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime); 
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
         // --- SPIN LOGIC ---
         function spin() {
-            // --- PASTE THIS HERE ---
             if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
-            // -----------------------
-            // ... rest of your code ...
 
             const participants = getParticipants();
             if (isSpinning || participants.length === 0) return;
@@ -694,13 +712,17 @@ Matthew</textarea>
             const angleStep = (Math.PI * 2) / numSegments;
             let targetIndex;
 
-            // --- RIGGING LOGIC ---
-            const rigName = "A18";
-            const rigIndex = participants.indexOf(rigName);
+            // --- NEW RIGGING LOGIC (A16 -> 1st, A18 -> 2nd, A17 -> 3rd) ---
+            const idxA16 = participants.indexOf("A16");
+            const idxA18 = participants.indexOf("A18");
+            const idxA17 = participants.indexOf("A17");
 
-            if (spinCount >= 2 && rigIndex !== -1 && !hasRigged) {
-                targetIndex = rigIndex;
-                hasRigged = true;
+            if (spinCount === 1 && idxA16 !== -1) {
+                targetIndex = idxA16;
+            } else if (spinCount === 2 && idxA18 !== -1) {
+                targetIndex = idxA18;
+            } else if (spinCount === 3 && idxA17 !== -1) {
+                targetIndex = idxA17;
             } else {
                 targetIndex = Math.floor(Math.random() * numSegments);
             }
@@ -717,23 +739,18 @@ Matthew</textarea>
             const finalRot = currentRotation + distance;
             const duration = 8000;
             const startTime = performance.now();
-                        // TRACKER FOR SOUND
+            
             let lastTickAngle = currentRotation;
 
             function animate(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
-                // Quartic Ease-Out
                 const ease = 1 - Math.pow(1 - progress, 4);
                 
-                // 1. UPDATE ROTATION
                 currentRotation = startRot + (ease * (finalRot - startRot));
 
-                // 2. SOUND CHECK (Fixed for Top Pointer & Drifting)
-                // We shift the angle by 270 degrees (3PI/2) so the math aligns with the Top Pointer
+                // Sound Logic
                 const offset = (3 * Math.PI) / 2; 
-                
                 const currentSeg = Math.floor((currentRotation + offset) / angleStep);
                 const lastSeg = Math.floor((lastTickAngle + offset) / angleStep);
 
@@ -742,7 +759,6 @@ Matthew</textarea>
                 }
                 lastTickAngle = currentRotation;
 
-                // 3. DRAW
                 drawWheel();
 
                 if (progress < 1) {
@@ -846,35 +862,6 @@ Matthew</textarea>
 
         drawWheel();
         idleLoop();
-        
-            // --- SOUND ENGINE ---
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    function playTick() {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        
-        // "Cutie" Bubble Pop Sound
-        osc.type = 'sine'; // Soft wave (instead of harsh square)
-        
-        // Pitch: Starts high (800Hz) and drops quickly
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
-        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
-        
-        // Volume: Quick fade out
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime); 
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-        
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.05);
-    }
-
-
     </script>
 </body>
 </html>
