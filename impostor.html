@@ -3,309 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Find the Impostor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    <title>You're Out!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* Color Themes */
-        :root { 
-            --bg-color: #FDEEDC; 
-            --primary: #ff4757; 
-            --secondary: #70a1ff;
-            --success: #2ed573;
-            --card-bg: #ffffff;
-            --text-main: #2f3542;
-            --btn-text: #ffffff;
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
         }
 
-        [data-theme="dark"] {
-            --bg-color: #222831;
-            --primary: #FF6B81; 
-            --secondary: #00ADB5; 
-            --success: #00C897; 
-            --card-bg: #393E46; 
-            --text-main: #EEEEEE;
+        /* Sleek Light Mode (Default Root) */
+        :root { 
+            --bg-color: #F3F4F6; 
+            --header-bg: #FFFFFF;
+            --card-bg: #FFFFFF;  
+            --input-bg: #F9FAFB; 
+            --border-color: #E5E7EB; 
+            
+            --primary: #EF4444; 
+            --secondary: #0EA5E9; 
+            --success: #10B981; 
+            
+            --text-main: #111827;
+            --text-muted: #6B7280;
             --btn-text: #FFFFFF;
         }
 
-        [data-theme="playful"] {
-            --bg-color: #FFF8EA;
-            --primary: #FF74B1;
-            --secondary: #A0BFE0;
-            --success: #9ECCA4;
-            --card-bg: #FFFFFF;
-            --text-main: #5C469C;
-            --btn-text: #ffffff;
-        }
-
-        [data-theme="ocean"] {
-            --bg-color: #E3F6FF;
-            --primary: #E76161; 
-            --secondary: #82AAE3;
-            --success: #70C5CE;
-            --card-bg: #FFFFFF;
-            --text-main: #2B3467;
-            --btn-text: #ffffff;
-        }
-
-        [data-theme="sunset"] {
-            --bg-color: #FFDEB4;
-            --primary: #FF7D7D;
-            --secondary: #B2A4FF;
-            --success: #6BCB77;
-            --card-bg: #FFF9CA;
-            --text-main: #5C469C;
-            --btn-text: #ffffff;
+        /* Sleek Premium Dark Mode */
+        [data-theme="dark"] {
+            --bg-color: #171B26; 
+            --header-bg: #232936; 
+            --card-bg: #232936;  
+            --input-bg: #11151E; 
+            --border-color: #353D4E; 
+            
+            --primary: #FF6B81; 
+            --secondary: #00ADB5; 
+            --success: #00C897; 
+            
+            --text-main: #FFFFFF;
+            --text-muted: #9CA3AF;
+            --btn-text: #FFFFFF;
         }
 
         body {
             font-family: 'Nunito', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            text-align: center;
-            overflow-x: hidden;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; min-height: 100dvh; 
+            text-align: center; overflow-x: hidden;
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Arabic Font Support */
-        [lang="ar"] body {
-            font-family: 'Tajawal', sans-serif;
-        }
-        [lang="ar"] h1, [lang="ar"] h2, [lang="ar"] h3, [lang="ar"] button {
-            font-family: 'Tajawal', sans-serif;
-            font-weight: 700;
-        }
+        [lang="ar"] body { font-family: 'Tajawal', sans-serif; }
+        
+        h1, h2, h3, h4 { margin: 0; font-weight: 800; color: var(--text-main); transition: color 0.3s; }
+        .subtitle { font-size: 1rem; color: var(--text-muted); margin-top: 8px; font-weight: 600; transition: color 0.3s; }
 
-        /* Fixed Global Selectors */
-        .top-controls {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 100;
-            display: flex;
-            gap: 10px;
+        /* Modern Header with Boundary Line */
+        .app-header {
+            position: absolute; top: 0; left: 0; width: 100%; padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center; z-index: 100;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: background-color 0.3s, border-color 0.3s;
         }
-        [dir="rtl"] .top-controls {
-            right: auto;
-            left: 15px;
+        .logo { display: flex; align-items: center; gap: 10px; }
+        
+        .logo-icon { font-size: 1.5rem; color: var(--text-main); transition: color 0.3s;}
+        .game-title {
+            font-size: 1.4rem; color: var(--text-main); font-weight: 800; letter-spacing: 0.5px;
+            transition: color 0.3s; line-height: 1;
         }
-
-        .top-controls select {
-            padding: 6px 10px;
-            border-radius: 12px;
-            font-family: inherit;
-            border: 2px solid var(--secondary);
-            background: var(--card-bg);
-            color: var(--text-main);
-            font-size: 0.85rem;
-            outline: none;
-            cursor: pointer;
+        
+        /* Top Right Icon Buttons */
+        .top-controls { display: flex; gap: 10px; align-items: center; }
+        
+        .icon-btn {
+            background: var(--card-bg); color: var(--text-main);
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; /* Synced with category buttons */
+            width: 42px; height: 42px; display: flex; justify-content: center; align-items: center;
+            font-size: 1.1rem; cursor: pointer; transition: all 0.2s; padding: 0; margin: 0;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: all 0.3s;
+        }
+        .icon-btn:active { transform: scale(0.9); }
+        
+        /* Custom Language Dropdown */
+        .lang-dropdown { position: relative; }
+        .lang-menu {
+            display: none; position: absolute; top: 50px; right: 0;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            overflow: hidden; z-index: 200; min-width: 140px; text-align: left;
+        }
+        [dir="rtl"] .lang-menu { right: auto; left: 0; text-align: right; }
+        .lang-menu.show { display: block; animation: fadeIn 0.2s; }
+        .lang-menu div {
+            padding: 14px 18px; cursor: pointer; font-weight: 700; color: var(--text-main);
+            transition: background 0.2s; font-family: 'Nunito', sans-serif;
+        }
+        .lang-menu div:hover, .lang-menu div:active { background: var(--input-bg); }
+
+        @media (max-width: 380px) {
+            .game-title { font-size: 1.2rem; }
+            .logo-icon { font-size: 1.3rem; }
+            .icon-btn { width: 36px; height: 36px; font-size: 1rem; }
         }
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 70px 20px 20px 20px;
-            box-sizing: border-box;
-        }
+        .container { width: 100%; max-width: 480px; padding: 100px 20px 30px 20px; }
 
-        h1, h2, h3 {
-            font-family: 'Fredoka One', cursive;
-            color: var(--primary);
-        }
-
-        .screen { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .screen { display: none; animation: fadeIn 0.3s ease-out forwards; }
         .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Buttons */
+        /* Sleek Flat Buttons */
         button {
-            font-family: 'Fredoka One', cursive;
-            background-color: var(--secondary);
-            color: var(--btn-text);
-            border: none;
-            padding: 15px 25px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 6px 0px rgba(0,0,0,0.15);
-            transition: all 0.1s;
-            margin: 10px;
-            width: 90%;
-            max-width: 300px;
+            font-family: inherit; font-weight: 700; color: var(--btn-text);
+            border: none; padding: 16px 24px; font-size: 1.1rem; 
+            border-radius: 12px; /* Synced with category buttons */
+            cursor: pointer; transition: transform 0.1s, opacity 0.2s; 
+            margin: 12px auto; width: 100%; max-width: 320px; display: block;
         }
+        button:active { transform: scale(0.97); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .green-btn { background-color: var(--success); } 
+        .red-btn { background-color: var(--primary); }
+        .teal-btn { background-color: var(--secondary); }
 
-        button:active {
-            transform: translateY(6px);
-            box-shadow: 0 0px 0px rgba(0,0,0,0.15);
+        /* Categories Grid */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+        .grid button { 
+            width: 100%; margin: 0; padding: 18px 10px; font-size: 1rem; 
+            background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color);
+            border-radius: 12px; font-weight: 700; transition: border-color 0.2s, background-color 0.2s;
         }
-
-        button.green-btn { background-color: var(--success); color: #ffffff; }
-        button.red-btn { background-color: var(--primary); color: #ffffff; }
-
-        /* Categories */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .grid button { width: 100%; margin: 0; padding: 20px 10px; font-size: 1rem; }
+        .grid button:active { background: var(--input-bg); border-color: var(--secondary); }
         .grid button:last-child:nth-child(odd) { grid-column: 1 / -1; width: 50%; justify-self: center; }
 
-        /* Player Card Input */
+        /* Premium Cards */
         .player-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            border: 3px solid rgba(0,0,0,0.05);
-            transition: background-color 0.3s;
+            background: var(--card-bg); border-radius: 16px; padding: 24px; 
+            margin-bottom: 24px; border: 1px solid var(--border-color);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06); transition: background-color 0.3s, border-color 0.3s;
         }
+        [data-theme="dark"] .player-card { box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
 
-        .avatar-selector { display: flex; justify-content: center; align-items: center; font-size: 3rem; margin-bottom: 15px; }
-        .avatar-btn { background: none; box-shadow: none; color: var(--secondary); font-size: 2rem; padding: 0 15px; width: auto; margin: 0; }
-        .avatar-btn:active { transform: scale(0.9); }
-
+        /* Inputs & Avatar Selectors */
+        .avatar-selector { display: flex; justify-content: center; align-items: center; font-size: 3rem; margin-bottom: 20px; }
+        .avatar-btn { background: none; color: var(--text-muted); font-size: 1.5rem; padding: 0 20px; width: auto; margin: 0; box-shadow: none; }
+        
         input[type="text"] {
-            width: 80%; padding: 12px; font-size: 1.2rem;
-            border: 2px solid rgba(0,0,0,0.1); border-radius: 10px;
-            text-align: center; font-family: inherit; margin-bottom: 15px;
-            outline: none; background: var(--bg-color); color: var(--text-main);
+            width: 100%; max-width: 320px; padding: 14px 20px; font-size: 1.1rem; 
+            border: 1px solid var(--border-color); border-radius: 12px;
+            text-align: center; font-family: inherit; font-weight: 600; margin-bottom: 20px; 
+            outline: none; background: var(--input-bg); color: var(--text-main);
+            transition: border-color 0.2s, background-color 0.3s, color 0.3s;
         }
+        input[type="text"]::placeholder { color: var(--text-muted); opacity: 0.7; }
         input[type="text"]:focus { border-color: var(--secondary); }
 
+        /* Player Chips */
         .player-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
-        
-        /* FIXED: Player Chip Contrast */
         .player-chip {
-            background: var(--bg-color); /* Swapped to bg-color for contrast against cards */
-            padding: 8px 15px; border-radius: 20px; font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 5px; color: var(--text-main);
-            border: 2px solid rgba(0,0,0,0.03); /* Subtle edge definition */
+            background: var(--bg-color); padding: 8px 12px 8px 16px; border-radius: 50px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px; color: var(--text-main); border: 1px solid var(--border-color); 
+            transition: background-color 0.3s, border-color 0.3s;
         }
-        [data-theme="dark"] .player-chip {
-            border-color: rgba(255,255,255,0.05); /* Light edge in dark mode */
-        }
-
-        /* Pure Text 'x' button */
+        
         .remove-btn { 
-            display: inline-flex; justify-content: center; align-items: center;
-            width: 20px; height: 20px; border-radius: 6px; 
-            background-color: var(--primary); color: #FFFFFF; 
-            cursor: pointer; margin-left: 8px; font-size: 1rem; 
+            display: inline-flex; justify-content: center; align-items: center; 
+            width: 22px; height: 22px; border-radius: 6px; 
+            background-color: #EF4444; color: #FFFFFF; 
+            cursor: pointer; margin-left: 4px; font-size: 0.9rem; 
             font-family: 'Nunito', sans-serif; font-weight: 800; line-height: 0; padding-bottom: 2px; box-sizing: border-box;
-            opacity: 0.6; transition: opacity 0.2s, transform 0.1s; 
+            transition: transform 0.1s, background-color 0.2s; 
         }
-        [dir="rtl"] .remove-btn { margin-left: 0; margin-right: 8px; }
-        .remove-btn:active { opacity: 1; transform: scale(0.9); }
-        
-        /* Fixed visibility in dark mode */
-        [data-theme="dark"] .remove-btn { opacity: 1; color: #FFFFFF; }
-        [data-theme="dark"] .remove-btn:active { opacity: 1; }
+        [dir="rtl"] .player-chip { padding: 8px 16px 8px 12px; }
+        [dir="rtl"] .remove-btn { margin-left: 0; margin-right: 4px; }
+        .remove-btn:active { transform: scale(0.9); background-color: var(--primary); }
 
-        /* NEW Peek Card Logic & Animations */
-        .peek-container {
-            width: 250px; height: 350px;
-            margin: 30px auto;
-            position: relative; 
+        /* FOOLPROOF Custom Dropdown Wrapper */
+        .time-config-wrap {
+            display: flex; align-items: center; justify-content: center; gap: 15px;
+            margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);
         }
         
-        /* The smaller card hidden underneath */
+        .custom-select-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .custom-select-wrapper select {
+            padding: 10px 40px 10px 16px; 
+            border-radius: 12px; /* Synced with buttons */
+            font-family: inherit; font-size: 1rem;
+            background-color: var(--input-bg); color: var(--text-main); font-weight: 700; 
+            border: 1px solid var(--border-color); outline: none; cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            appearance: none; -webkit-appearance: none; -moz-appearance: none; 
+            width: 100%; min-width: 140px;
+        }
+        
+        .custom-select-wrapper .select-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-main); 
+            pointer-events: none; 
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        [dir="rtl"] .custom-select-wrapper select {
+            padding: 10px 16px 10px 40px;
+        }
+        [dir="rtl"] .custom-select-wrapper .select-icon {
+            right: auto;
+            left: 14px;
+        }
+
+        /* Modern Peek Cards */
+        .peek-container { width: 260px; height: 360px; margin: 30px auto; position: relative; }
         .peek-bottom {
-            position: absolute;
-            bottom: 0; left: 0; 
-            width: 100%; height: 75%; 
-            background: var(--card-bg); border-radius: 20px; 
-            border: 4px solid var(--secondary); padding: 20px; box-sizing: border-box;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            box-shadow: inset 0 10px 20px rgba(0,0,0,0.05);
-            transition: border-color 0.3s;
-            z-index: 1;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; 
+            background: var(--input-bg); border-radius: 16px; 
+            border: 2px solid var(--border-color); padding: 20px; box-sizing: border-box; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.05); transition: border-color 0.3s, background-color 0.3s; z-index: 1;
         }
-
-        /* The main card sitting on top */
         .peek-top {
-            position: absolute;
-            top: 0; left: 0; 
-            width: 100%; height: 100%;
-            background: var(--card-bg); border-radius: 20px; 
-            border: 4px solid var(--secondary); padding: 20px; box-sizing: border-box;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            box-shadow: 0 15px 25px rgba(0,0,0,0.15);
-            z-index: 2;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            user-select: none; -webkit-user-select: none; touch-action: none;
-            cursor: grab;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--card-bg); border-radius: 16px; 
+            border: 2px solid var(--border-color); padding: 20px; box-sizing: border-box; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15); z-index: 2;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s, border-color 0.3s; 
+            user-select: none; -webkit-user-select: none; touch-action: none; cursor: grab;
         }
         .peek-top:active { cursor: grabbing; }
-
-        /* The class applied via JS when touched */
-        .peek-top.lifted {
-            transform: translateY(-75%); 
-        }
+        .peek-top.lifted { transform: translateY(-70%); }
         
-        .impostor-text { color: var(--primary); font-size: 2.2rem; font-family: inherit; }
-        .role-text { color: var(--success); font-size: 2rem; font-family: inherit; }
+        .impostor-text { color: var(--primary); font-size: 2rem; font-weight: 800; margin-bottom: 5px; }
+        .role-text { color: var(--success); font-size: 1.8rem; font-weight: 800; margin-top: 5px;}
 
-        .timer-display { font-size: 5rem; font-family: inherit; font-weight: bold; color: var(--text-main); margin: 30px 0; }
-
-        /* Custom Modals */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: center;
-            backdrop-filter: blur(3px);
+        .timer-display { 
+            font-size: 5rem; font-weight: 800; color: var(--text-main); margin: 20px 0; 
+            transition: color 0.3s; font-variant-numeric: tabular-nums;
         }
-        .modal.active { display: flex; animation: fadeIn 0.3s; }
-        .modal-content {
-            max-width: 400px; width: 90%; margin: 0; 
-            display: flex; flex-direction: column; align-items: center;
-            text-align: center;
+        .timer-display.danger { color: var(--primary); animation: pulseTimer 1s infinite; }
+        @keyframes pulseTimer { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+
+        /* Sleek Modals */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(17, 21, 30, 0.6); z-index: 200; justify-content: center; align-items: center; 
+            backdrop-filter: blur(4px);
+        }
+        .modal.active { display: flex; animation: fadeIn 0.2s; }
+        .modal-content { 
+            max-width: 360px; width: 90%; margin: 0; display: flex; flex-direction: column; align-items: center; 
         }
 
     </style>
 </head>
-<body>
+<body data-theme="dark">
 
-<div class="top-controls">
-    <select id="lang-select" onchange="changeLanguage(this.value)">
-        <option value="en">🇺🇸 English</option>
-        <option value="ar">🇸🇦 العربية</option>
-    </select>
-    <select id="theme-select" onchange="changeTheme(this.value)">
-        <option value="default" id="i18n-thDef">🎨 Default</option>
-        <option value="dark" id="i18n-thDark">🌙 Dark</option>
-        <option value="playful" id="i18n-thPlay">🍭 Playful</option>
-        <option value="ocean" id="i18n-thOcean">🌊 Ocean</option>
-        <option value="sunset" id="i18n-thSun">🌅 Sunset</option>
-    </select>
-</div>
+<header class="app-header">
+    <div class="logo">
+        <i class="fa-solid fa-user-secret logo-icon"></i>
+        <div class="game-title" id="i18n-gameTitle">You're Out!</div>
+    </div>
+    <div class="top-controls">
+        <button class="icon-btn" onclick="window.location.href='/'" title="Home">
+            <i class="fa-solid fa-house"></i>
+        </button>
+        <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme">
+            <i id="theme-icon" class="fa-solid fa-sun"></i>
+        </button>
+        <div class="lang-dropdown">
+            <button class="icon-btn" onclick="toggleLangMenu(event)" title="Change Language">
+                <i class="fa-solid fa-globe"></i>
+            </button>
+            <div class="lang-menu" id="lang-menu">
+                <div onclick="selectLanguage('en')">🇺🇸 English</div>
+                <div onclick="selectLanguage('ar')">🇸🇦 العربية</div>
+            </div>
+        </div>
+    </div>
+</header>
 
 <div class="container">
     
     <div id="screen-categories" class="screen active">
-        <h1 id="i18n-selCat">Select Category</h1>
-        <p id="i18n-chooseDeck">Choose a deck to play with!</p>
+        <h2 id="i18n-selCat">Select Category</h2>
+        <div class="subtitle" id="i18n-chooseDeck">Choose a deck to play with</div>
         <div class="grid" id="category-grid"></div>
     </div>
 
     <div id="screen-players" class="screen">
         <h2 id="i18n-whoPlaying">Who is playing?</h2>
-        <div class="player-card">
+        <div class="player-card" style="margin-top: 20px;">
             <div class="avatar-selector" dir="ltr">
-                <button class="avatar-btn" onclick="changeAvatar(-1)">◀</button>
-                <span id="current-avatar">🐵</span>
-                <button class="avatar-btn" onclick="changeAvatar(1)">▶</button>
+                <button class="avatar-btn" onclick="changeAvatar(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                <span id="current-avatar">🦊</span>
+                <button class="avatar-btn" onclick="changeAvatar(1)"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
             <input type="text" id="player-name" placeholder="Enter Name..." autocomplete="off">
-            <button onclick="addPlayer()" id="i18n-addPlayer">Add Player</button>
+            <button class="teal-btn" onclick="addPlayer()" id="i18n-addPlayer">Add Player</button>
         </div>
         <div class="player-list" id="player-list"></div>
         <br>
@@ -314,66 +325,114 @@
 
     <div id="screen-summary" class="screen">
         <h2 id="i18n-gameSum">Game Summary</h2>
-        <div class="player-card">
-            <h3><span id="i18n-catLabel">Category:</span> <span id="sum-category" style="color:var(--secondary)"></span></h3>
-            <p><strong><span id="i18n-playersLabel">Players</span> (<span id="sum-count"></span>):</strong></p>
-            <div class="player-list" id="sum-players"></div>
-            <p style="margin-top: 20px; font-weight: bold; opacity: 0.8;" id="i18n-passWarn">Pass the phone around. Make sure no one sees your screen!</p>
+        <div class="subtitle" id="i18n-passWarn">Turn order has been randomized!</div>
+        
+        <div class="player-card" style="margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span style="color: var(--text-muted); font-weight: 600;" id="i18n-catLabel">Category:</span>
+                <span id="sum-category" style="color: var(--secondary); font-weight: 800; font-size: 1.1rem;"></span>
+            </div>
+            
+            <div style="text-align: left; color: var(--text-muted); font-weight: 600; margin-bottom: 10px;" id="i18n-playersLabel">Players (<span id="sum-count"></span>):</div>
+            <div class="player-list" id="sum-players" style="margin-top: 0; justify-content: flex-start;"></div>
+            
+            <div class="time-config-wrap">
+                <span id="i18n-timeLimitLabel" style="color: var(--text-muted); font-weight: 600;">Time Limit:</span>
+                
+                <div class="custom-select-wrapper">
+                    <select id="time-limit-select">
+                        <option value="0" id="i18n-timeInf">Infinity</option>
+                        <option value="60">1 Min</option>
+                        <option value="120">2 Min</option>
+                        <option value="180" selected>3 Min</option>
+                        <option value="300">5 Min</option>
+                        <option value="600">10 Min</option>
+                        <option value="900">15 Min</option>
+                        <option value="1800">30 Min</option>
+                        <option value="3600">1 Hour</option>
+                        <option value="5400">1.5 Hours</option>
+                        <option value="7200">2 Hours</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-icon"></i>
+                </div>
+            </div>
         </div>
-        <button class="red-btn" onclick="modifyGame()" id="i18n-modify">Modify</button>
-        <button class="green-btn" onclick="startReveal()" id="i18n-startBtn">Start Game</button>
+        
+        <div style="display: flex; gap: 10px; flex-direction: column-reverse;">
+            <button class="teal-btn" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-main);" onclick="modifyGame()" id="i18n-modify">Modify Setup</button>
+            <button class="green-btn" onclick="startPassScreen()" id="i18n-startBtn">Start Game</button>
+        </div>
+    </div>
+
+    <div id="screen-pass" class="screen">
+        <div style="color: var(--secondary); font-size: 3rem; margin-bottom: 20px;"><i class="fa-solid fa-mobile-screen"></i></div>
+        <h2 id="i18n-passTitle" style="font-size: 1.8rem; margin-bottom: 10px;">Pass the phone to...</h2>
+        <div class="player-card" style="margin: 20px auto; padding: 40px 20px; background: var(--input-bg);">
+            <div id="pass-screen-avatar" style="font-size: 4rem; margin-bottom: 15px;">🦊</div>
+            <h2 id="pass-screen-name" style="font-size: 2.2rem; color: var(--secondary); margin: 0;">Name</h2>
+        </div>
+        <button class="green-btn" onclick="confirmPass()" id="i18n-withMeBtn">I have it!</button>
     </div>
 
     <div id="screen-reveal" class="screen">
-        <h2 id="reveal-header">Pass to Name</h2>
-        <p id="i18n-tapDesc">Press and hold the card to peek at your role!</p>
+        <h2 id="reveal-header" style="opacity: 0; margin-bottom: 0;">-</h2>
+        <div class="subtitle" id="i18n-tapDesc">Press and hold the card to peek at your role.</div>
         
         <div class="peek-container" id="reveal-card">
-            
             <div class="peek-bottom" id="card-back-side">
-                <h3 style="margin:0;" id="i18n-youAre">You are...</h3>
-                <div id="card-role" style="margin-top:20px; text-align:center;"></div>
+                <div style="color: var(--text-muted); font-weight: 600; margin-bottom: 5px;" id="i18n-youAre">You are...</div>
+                <div id="card-role" style="text-align:center;"></div>
             </div>
-
             <div class="peek-top" id="peek-top-card" onmousedown="liftCard(event)" ontouchstart="liftCard(event)">
-                <span id="card-avatar" style="font-size: 4rem;"></span>
-                <h2 id="card-name" style="margin:10px 0;">Name</h2>
-                <p style="opacity: 0.7; font-weight: bold;" id="i18n-tapLift">Press & Hold 👆</p>
+                <span id="card-avatar" style="font-size: 4rem; margin-bottom: 10px;"></span>
+                <h2 id="card-name" style="margin:0 0 15px 0; font-size: 1.8rem;">Name</h2>
+                <div style="color: var(--text-muted); font-weight: 600; font-size: 0.9rem;" id="i18n-tapLift">
+                    <i class="fa-solid fa-hand-pointer" style="margin-right: 5px;"></i> Press & Hold
+                </div>
             </div>
-            
         </div>
 
-        <button id="next-player-btn" class="green-btn" style="display:none;" onclick="nextReveal()">Next Player</button>
+        <button id="next-player-btn" class="green-btn" style="opacity:0; pointer-events: none;" onclick="nextReveal()">Next Player</button>
     </div>
 
     <div id="screen-timer" class="screen">
         <h2 id="i18n-findImp">Find the Impostor!</h2>
-        <p id="i18n-startAsk">Start asking questions...</p>
-        <div class="timer-display" id="timer">00:00</div>
+        <div class="subtitle" id="i18n-startAsk">Start asking questions...</div>
+        
+        <div class="player-card" style="margin-top: 30px; background: transparent; border: none; box-shadow: none;">
+            <div class="timer-display" id="timer">00:00</div>
+        </div>
         
         <button class="green-btn" id="start-timer-btn" onclick="startTimer()"><span id="i18n-startTimer">Start Timer</span></button>
-        <button class="red-btn" onclick="endGame()" id="i18n-endGame">End Game</button>
+        <button class="red-btn" onclick="endGame()" id="i18n-endGame" style="margin-top: 20px;">End Game</button>
     </div>
 
 </div>
 
 <div id="alert-modal" class="modal">
     <div class="modal-content player-card">
-        <h2 id="i18n-alertTitle" style="color: var(--primary); margin-top: 10px;">Hold up!</h2>
-        <p id="alert-msg" style="font-size: 1.1rem; font-weight: bold; margin: 15px 0; color: var(--text-main);"></p>
-        <button class="green-btn" onclick="closeAlert()" id="i18n-alertOk" style="width: 80%;">Got it</button>
+        <div style="color: var(--primary); font-size: 2.5rem; margin-bottom: 10px;"><i class="fa-solid fa-circle-exclamation"></i></div>
+        <h2 id="i18n-alertTitle">Hold up!</h2>
+        <p id="alert-msg" style="font-size: 1.1rem; font-weight: 600; margin: 15px 0; color: var(--text-muted);"></p>
+        <button class="teal-btn" onclick="closeAlert()" id="i18n-alertOk">Got it</button>
     </div>
 </div>
 
 <div id="end-modal" class="modal">
     <div class="modal-content player-card">
-        <h1 id="i18n-gameOver">Game Over!</h1>
-        <h3 id="i18n-theImpWas" style="color: var(--text-main); margin-top: 5px;">The impostor was:</h3>
-        <div class="impostor-text" id="end-impostor-name" style="margin: 15px 0;">Name</div>
-        <div style="width: 100%; height: 2px; background: rgba(0,0,0,0.1); margin: 15px 0;"></div>
-        <h3 id="i18n-timeLabel" style="color: var(--text-main); margin: 0;">Time:</h3>
-        <div class="timer-display" id="end-time" style="font-size: 3rem; margin: 5px 0 20px 0; color: var(--secondary);">00:00</div>
-        <button class="green-btn" onclick="resetGame()" id="i18n-playAgain" style="width: 100%;">Play Again</button>
+        <h1 id="i18n-gameOver" style="font-size: 2.2rem; margin-bottom: 5px;">Game Over!</h1>
+        
+        <div style="width: 100%; height: 1px; background: var(--border-color); margin: 20px 0;"></div>
+        
+        <div style="color: var(--text-muted); font-weight: 600;" id="i18n-theImpWas">The impostor was:</div>
+        <div class="player-chip" id="end-impostor-name" style="margin: 15px auto; justify-content: center; font-size: 1.2rem; padding: 12px 20px;">Name</div>
+        
+        <div style="width: 100%; height: 1px; background: var(--border-color); margin: 20px 0;"></div>
+        
+        <div style="color: var(--text-muted); font-weight: 600;" id="i18n-timeLabel">Time:</div>
+        <div class="timer-display" id="end-time" style="font-size: 2.5rem; margin: 5px 0 25px 0; color: var(--secondary);">00:00</div>
+        
+        <button class="green-btn" onclick="resetGame()" id="i18n-playAgain">Play Again</button>
     </div>
 </div>
 
@@ -383,6 +442,7 @@
         if(audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
         osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+        
         if (type === 'pop') {
             osc.type = 'sine'; osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
             gainNode.gain.setValueAtTime(1, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
@@ -395,32 +455,89 @@
             osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
             gainNode.gain.setValueAtTime(1, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
             osc.start(); osc.stop(audioCtx.currentTime + 1);
+        } else if (type === 'ready') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); 
+            gainNode.gain.setValueAtTime(0.8, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+        } else if (type === 'alarm') {
+            osc.type = 'square'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
         }
+    }
+
+    let wakeLock = null;
+    async function requestWakeLock() {
+        try {
+            if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+        } catch (err) {}
+    }
+    function releaseWakeLock() {
+        if (wakeLock !== null) { wakeLock.release(); wakeLock = null; }
+    }
+
+    /* Top Header Scripts */
+    function toggleTheme() {
+        playSound('pop');
+        const body = document.body;
+        const icon = document.getElementById('theme-icon');
+        
+        if (body.getAttribute('data-theme') === 'dark') {
+            body.removeAttribute('data-theme'); // Switches to Light Mode
+            icon.className = 'fa-solid fa-moon';
+        } else {
+            body.setAttribute('data-theme', 'dark'); // Switches to Dark Mode
+            icon.className = 'fa-solid fa-sun'; // FIXED: Solid Sun icon restored
+        }
+    }
+
+    function toggleLangMenu(e) {
+        playSound('pop');
+        e.stopPropagation();
+        document.getElementById('lang-menu').classList.toggle('show');
+    }
+
+    document.addEventListener('click', function(e) {
+        const menu = document.getElementById('lang-menu');
+        if (menu.classList.contains('show')) {
+            menu.classList.remove('show');
+        }
+    });
+
+    function selectLanguage(lang) {
+        changeLanguage(lang);
     }
 
     const i18n = {
         en: {
-            thDef: "🎨 Default", thDark: "🌙 Dark", thPlay: "🍭 Playful", thOcean: "🌊 Ocean", thSun: "🌅 Sunset",
-            selCat: "Select Category", chooseDeck: "Choose a deck to play with!", whoPlaying: "Who is playing?",
+            gameTitle: "You're Out!",
+            selCat: "Select Category", chooseDeck: "Choose a deck to play with", whoPlaying: "Who is playing?",
             addPlayer: "Add Player", next: "Next", gameSum: "Game Summary", catLabel: "Category:", playersLabel: "Players",
-            passWarn: "Pass the phone around. Make sure no one sees your screen!", modify: "Modify", startBtn: "Start Game",
-            tapDesc: "Press and hold the card to peek at your role!", tapLift: "Press & Hold 👆", youAre: "You are...",
-            impostorTitle: "THE IMPOSTOR 🕵️‍♂️", impostorSub: "Try to blend in!", wordIs: "The word is:",
+            timeLimitLabel: "Time Limit:", timeInf: "Infinity",
+            passWarn: "Turn order has been randomized!", modify: "Modify Setup", startBtn: "Start Game",
+            passTitle: "Pass the phone to...", withMeBtn: "I have it!",
+            tapDesc: "Press and hold the card to peek at your role.", tapLift: "<i class='fa-solid fa-hand-pointer' style='margin-right:5px;'></i> Press & Hold", youAre: "You are...",
+            impostorTitle: "THE IMPOSTOR", impostorSub: "Try to blend in!", wordIs: "The word is",
             nextPlayer: "Next Player", findImp: "Find the Impostor!", startAsk: "Start asking questions...",
             startTimer: "Start Timer", endGame: "End Game", gameOver: "Game Over!", theImpWas: "The impostor was:",
-            timeLabel: "Time:", playAgain: "Play Again", inputPlaceholder: "Enter Name...", passTo: "Pass to",
+            timeLabel: "Time:", playAgain: "Play Again", inputPlaceholder: "Enter Name...",
             alertTitle: "Hold up!", alertOk: "Got it", needPlayers: "You need at least 3 players to play!"
         },
         ar: {
-            thDef: "🎨 الأساسي", thDark: "🌙 داكن", thPlay: "🍭 مرح", thOcean: "🌊 محيط", thSun: "🌅 غروب",
-            selCat: "اختر الفئة", chooseDeck: "اختر مجموعة للعب بها!", whoPlaying: "من سيلعب؟",
+            gameTitle: "برا السالفة!",
+            selCat: "اختر الفئة", chooseDeck: "اختر مجموعة للعب بها", whoPlaying: "من سيلعب؟",
             addPlayer: "إضافة لاعب", next: "التالي", gameSum: "ملخص اللعبة", catLabel: "الفئة:", playersLabel: "اللاعبون",
-            passWarn: "مرر الهاتف. تأكد من عدم رؤية أحد لشاشتك!", modify: "تعديل", startBtn: "ابدأ اللعبة",
-            tapDesc: "اضغط مطولاً على البطاقة لمعرفة دورك!", tapLift: "اضغط مطولاً 👆", youAre: "أنت...",
-            impostorTitle: "المحتال 🕵️‍♂️", impostorSub: "حاول أن تندمج!", wordIs: "الكلمة هي:",
+            timeLimitLabel: "وقت اللعبة:", timeInf: "مفتوح",
+            passWarn: "تم ترتيب اللاعبين عشوائياً!", modify: "تعديل الإعدادات", startBtn: "ابدأ اللعبة",
+            passTitle: "مرر الهاتف إلى...", withMeBtn: "معي!",
+            tapDesc: "اضغط مطولاً على البطاقة لمعرفة دورك.", tapLift: "<i class='fa-solid fa-hand-pointer' style='margin-left:5px;'></i> اضغط مطولاً", youAre: "أنت...",
+            impostorTitle: "المحتال", impostorSub: "حاول أن تندمج!", wordIs: "الكلمة هي",
             nextPlayer: "اللاعب التالي", findImp: "ابحث عن المحتال!", startAsk: "ابدأ بطرح الأسئلة...",
             startTimer: "ابدأ المؤقت", endGame: "إنهاء اللعبة", gameOver: "انتهت اللعبة!", theImpWas: "المحتال كان:",
-            timeLabel: "الوقت:", playAgain: "العب مرة أخرى", inputPlaceholder: "أدخل الاسم...", passTo: "مرر إلى",
+            timeLabel: "الوقت:", playAgain: "العب مرة أخرى", inputPlaceholder: "أدخل الاسم...",
             alertTitle: "عذراً!", alertOk: "حسناً", needPlayers: "تحتاج إلى 3 لاعبين على الأقل للعب!"
         }
     };
@@ -491,28 +608,17 @@
         }
     };
 
-    const avatars = ['🐵', '🐶', '🐺', '🦊', '🐱', '🦁', '🐯', '🐴', '🦄', '🐮', '🐷', '🐭', '🐹', '🐰', '🐻', '🐨', '🐼', '🐸', '👽', '🤖'];
+    const avatars = ['🦊', '🐺', '🐵', '🐶', '🐱', '🦁', '🐯', '🐴', '🦄', '🐮', '🐷', '🐭', '🐹', '🐰', '🐻', '🐨', '🐼', '🐸', '👽', '🤖'];
     
-    let state = { lang: 'en', selectedCategoryKey: '', selectedItem: '', players: [], impostorIndex: -1, currentRevealIndex: 0, currentAvatarIndex: 0, timerInterval: null, secondsElapsed: 0 };
-
-    function changeTheme(themeName) {
-        playSound('pop');
-        if (themeName === 'default') document.body.removeAttribute('data-theme');
-        else document.body.setAttribute('data-theme', themeName);
-    }
+    let state = { lang: 'en', selectedCategoryKey: '', selectedItem: '', players: [], impostorIndex: -1, currentRevealIndex: 0, currentAvatarIndex: 0, timerInterval: null, secondsRemaining: 0, maxTime: 0 };
 
     function changeLanguage(lang) {
-        playSound('pop');
         state.lang = lang;
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.lang = lang;
         
         const texts = i18n[lang];
-        document.getElementById('i18n-thDef').innerText = texts.thDef;
-        document.getElementById('i18n-thDark').innerText = texts.thDark;
-        document.getElementById('i18n-thPlay').innerText = texts.thPlay;
-        document.getElementById('i18n-thOcean').innerText = texts.thOcean;
-        document.getElementById('i18n-thSun').innerText = texts.thSun;
+        document.getElementById('i18n-gameTitle').innerText = texts.gameTitle;
         document.getElementById('i18n-selCat').innerText = texts.selCat;
         document.getElementById('i18n-chooseDeck').innerText = texts.chooseDeck;
         document.getElementById('i18n-whoPlaying').innerText = texts.whoPlaying;
@@ -521,11 +627,15 @@
         document.getElementById('i18n-gameSum').innerText = texts.gameSum;
         document.getElementById('i18n-catLabel').innerText = texts.catLabel;
         document.getElementById('i18n-playersLabel').innerText = texts.playersLabel;
+        document.getElementById('i18n-timeLimitLabel').innerText = texts.timeLimitLabel;
+        document.getElementById('i18n-timeInf').innerText = texts.timeInf;
         document.getElementById('i18n-passWarn').innerText = texts.passWarn;
         document.getElementById('i18n-modify').innerText = texts.modify;
         document.getElementById('i18n-startBtn').innerText = texts.startBtn;
+        document.getElementById('i18n-passTitle').innerText = texts.passTitle;
+        document.getElementById('i18n-withMeBtn').innerText = texts.withMeBtn;
         document.getElementById('i18n-tapDesc').innerText = texts.tapDesc;
-        document.getElementById('i18n-tapLift').innerText = texts.tapLift;
+        document.getElementById('i18n-tapLift').innerHTML = texts.tapLift;
         document.getElementById('i18n-youAre').innerText = texts.youAre;
         document.getElementById('next-player-btn').innerText = texts.nextPlayer; 
         document.getElementById('i18n-findImp').innerText = texts.findImp;
@@ -576,19 +686,33 @@
 
     function renderPlayerList() {
         const list = document.getElementById('player-list');
-        list.innerHTML = '';
+        const sumList = document.getElementById('sum-players');
+        if(list) list.innerHTML = '';
+        if(sumList) sumList.innerHTML = '';
+        
         state.players.forEach((p, index) => {
-            const chip = document.createElement('div'); chip.className = 'player-chip';
-            chip.innerHTML = `<span>${p.avatar}</span> ${p.name} <span class="remove-btn" onclick="removePlayer(${index})">x</span>`;
-            list.appendChild(chip);
+            if(list) {
+                const chip = document.createElement('div'); chip.className = 'player-chip';
+                chip.innerHTML = `<span>${p.avatar}</span> ${p.name} <span class="remove-btn" onclick="removePlayer(${index})"><i class="fa-solid fa-xmark"></i></span>`;
+                list.appendChild(chip);
+            }
+            if(sumList) {
+                const sChip = document.createElement('div'); sChip.className = 'player-chip';
+                sChip.innerHTML = `<span>${p.avatar}</span> ${p.name}`;
+                sumList.appendChild(sChip);
+            }
         });
+        if(document.getElementById('sum-count')) document.getElementById('sum-count').innerText = state.players.length;
     }
 
-    function modifyGame() { playSound('pop'); showScreen('screen-categories'); }
+    function modifyGame() { playSound('pop'); showScreen('screen-players'); }
+    function closeAlert() { playSound('pop'); document.getElementById('alert-modal').classList.remove('active'); }
 
-    function closeAlert() {
-        playSound('pop');
-        document.getElementById('alert-modal').classList.remove('active');
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
     }
 
     function goToSummary() {
@@ -600,6 +724,8 @@
         }
         playSound('pop');
         
+        shuffleArray(state.players);
+        
         const catData = gameData[state.selectedCategoryKey];
         const items = catData.items[state.lang];
         
@@ -607,24 +733,41 @@
         state.impostorIndex = Math.floor(Math.random() * state.players.length);
         
         document.getElementById('sum-category').innerText = catData.name[state.lang];
-        document.getElementById('sum-count').innerText = state.players.length;
-        
-        const sumList = document.getElementById('sum-players');
-        sumList.innerHTML = '';
-        state.players.forEach(p => { sumList.innerHTML += `<div class="player-chip"><span>${p.avatar}</span> ${p.name}</div>`; });
+        renderPlayerList();
         showScreen('screen-summary');
     }
 
-    function startReveal() {
+    function startPassScreen() {
         playSound('pop');
         state.currentRevealIndex = 0;
+        
+        const limitStr = document.getElementById('time-limit-select').value;
+        state.maxTime = parseInt(limitStr);
+        state.secondsRemaining = state.maxTime; 
+        
+        preparePassScreen();
+    }
+
+    function preparePassScreen() {
+        const player = state.players[state.currentRevealIndex];
+        document.getElementById('pass-screen-avatar').innerText = player.avatar;
+        document.getElementById('pass-screen-name').innerText = player.name;
+        showScreen('screen-pass');
+    }
+
+    function confirmPass() {
+        playSound('ready'); 
         
         const cardContainer = document.getElementById('reveal-card');
         const topCard = document.getElementById('peek-top-card');
         
         topCard.style.transition = 'none';
         topCard.classList.remove('lifted');
-        document.getElementById('next-player-btn').style.display = 'none';
+        
+        const nextBtn = document.getElementById('next-player-btn');
+        nextBtn.style.opacity = '0';
+        nextBtn.style.pointerEvents = 'none';
+        
         cardContainer.style.transform = 'translateY(0)';
         cardContainer.style.opacity = '1';
         
@@ -640,7 +783,6 @@
         const isImpostor = (state.currentRevealIndex === state.impostorIndex);
         const txt = i18n[state.lang];
 
-        document.getElementById('reveal-header').innerText = `${txt.passTo} ${player.name}`;
         document.getElementById('card-avatar').innerText = player.avatar;
         document.getElementById('card-name').innerText = player.name;
 
@@ -648,10 +790,10 @@
         const backSide = document.getElementById('card-back-side');
 
         if (isImpostor) {
-            roleDiv.innerHTML = `<span class="impostor-text">${txt.impostorTitle}</span><p style="opacity:0.7; font-weight:bold;">${txt.impostorSub}</p>`;
+            roleDiv.innerHTML = `<div class="impostor-text">${txt.impostorTitle}</div><div style="color:var(--text-muted); font-weight:600;">${txt.impostorSub}</div>`;
             backSide.style.borderColor = 'var(--primary)'; 
         } else {
-            roleDiv.innerHTML = `<p style="opacity:0.7; font-weight:bold; margin:0;">${txt.wordIs}</p><span class="role-text">${state.selectedItem}</span>`;
+            roleDiv.innerHTML = `<div style="color:var(--text-muted); font-weight:600; margin-bottom: 5px;">${txt.wordIs}</div><div class="role-text">${state.selectedItem}</div>`;
             backSide.style.borderColor = 'var(--secondary)'; 
         }
     }
@@ -665,13 +807,10 @@
             topCard.classList.add('lifted');
             
             const btn = document.getElementById('next-player-btn');
-            if(btn.style.display === 'none') {
-                btn.style.opacity = '0';
-                btn.style.display = 'inline-block';
-                setTimeout(() => {
-                    btn.style.transition = 'opacity 0.3s ease-in';
-                    btn.style.opacity = '1';
-                }, 10);
+            if(btn.style.opacity === '0') {
+                btn.style.transition = 'opacity 0.3s ease-in';
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
             }
         }
     }
@@ -691,15 +830,10 @@
         playSound('pop');
         const btn = document.getElementById('next-player-btn');
         const cardContainer = document.getElementById('reveal-card');
-        const topCard = document.getElementById('peek-top-card');
         
-        btn.style.transition = 'opacity 0.2s';
-        btn.style.opacity = '0';
+        btn.style.transition = 'opacity 0.2s'; btn.style.opacity = '0'; btn.style.pointerEvents = 'none';
         
         setTimeout(() => {
-            btn.style.display = 'none';
-            btn.style.opacity = '1'; 
-
             cardContainer.style.transition = 'transform 0.4s ease-in, opacity 0.4s ease-in';
             cardContainer.style.transform = 'translateY(100vh)';
             cardContainer.style.opacity = '0';
@@ -707,58 +841,75 @@
             setTimeout(() => {
                 state.currentRevealIndex++;
                 if (state.currentRevealIndex < state.players.length) {
-                    
-                    topCard.style.transition = 'none';
-                    void topCard.offsetWidth; 
-
-                    setupRevealCardData(); 
-
-                    cardContainer.style.transition = 'none';
-                    cardContainer.style.transform = 'translateY(-100vh)';
-                    void cardContainer.offsetWidth; 
-
-                    cardContainer.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease-out';
-                    cardContainer.style.transform = 'translateY(0)';
-                    cardContainer.style.opacity = '1';
-                    
-                    setTimeout(() => { topCard.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; }, 50);
-
+                    preparePassScreen(); 
                 } else {
-                    cardContainer.style.transform = 'translateY(0)';
-                    cardContainer.style.opacity = '1';
-                    showScreen('screen-timer');
+                    setupTimerScreen();
                 }
             }, 400); 
         }, 200); 
     }
 
+    function updateTimerDisplay(secs) {
+        const mins = String(Math.floor(secs / 60)).padStart(2, '0');
+        const remainingSecs = String(secs % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `${mins}:${remainingSecs}`;
+    }
+
+    function setupTimerScreen() {
+        document.getElementById('timer').classList.remove('danger');
+        if (state.maxTime === 0) {
+            updateTimerDisplay(0);
+        } else {
+            updateTimerDisplay(state.maxTime);
+        }
+        showScreen('screen-timer');
+    }
+
     function startTimer() {
         playSound('bell');
         document.getElementById('start-timer-btn').style.display = 'none';
+        requestWakeLock();
+        
         state.timerInterval = setInterval(() => {
-            state.secondsElapsed++;
-            const mins = String(Math.floor(state.secondsElapsed / 60)).padStart(2, '0');
-            const secs = String(state.secondsElapsed % 60).padStart(2, '0');
-            document.getElementById('timer').innerText = `${mins}:${secs}`;
+            if (state.maxTime === 0) {
+                state.secondsRemaining++;
+                updateTimerDisplay(state.secondsRemaining);
+            } else {
+                state.secondsRemaining--;
+                updateTimerDisplay(state.secondsRemaining);
+                
+                if (state.secondsRemaining <= 0) {
+                    clearInterval(state.timerInterval);
+                    document.getElementById('timer').classList.add('danger');
+                    playSound('alarm');
+                    state.timerInterval = setInterval(() => { playSound('alarm'); }, 2000);
+                }
+            }
         }, 1000);
     }
 
     function endGame() {
         playSound('bell');
         clearInterval(state.timerInterval);
+        releaseWakeLock();
         
         const impostor = state.players[state.impostorIndex];
         document.getElementById('end-impostor-name').innerHTML = `<span>${impostor.avatar}</span> ${impostor.name}`;
-        document.getElementById('end-time').innerText = document.getElementById('timer').innerText;
+        
+        if (state.maxTime > 0 && state.secondsRemaining <= 0) {
+            document.getElementById('end-time').innerText = "00:00";
+        } else {
+            document.getElementById('end-time').innerText = document.getElementById('timer').innerText;
+        }
+        
         document.getElementById('end-modal').classList.add('active');
     }
 
     function resetGame() {
         playSound('pop');
         document.getElementById('end-modal').classList.remove('active');
-        state.secondsElapsed = 0;
-        document.getElementById('timer').innerText = "00:00";
-        document.getElementById('start-timer-btn').style.display = 'inline-block';
+        state.secondsRemaining = 0;
+        document.getElementById('start-timer-btn').style.display = 'block';
         showScreen('screen-categories');
     }
 
@@ -767,7 +918,10 @@
         document.getElementById(id).classList.add('active');
     }
 
+    // Initialize Default Dark Mode and Language
+    document.body.setAttribute('data-theme', 'dark'); 
     initCategories();
+    changeLanguage('en');
 
 </script>
 </body>
