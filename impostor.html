@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Find the Impostor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Color Themes */
+        :root { 
+            --bg-color: #FDEEDC; 
+            --primary: #ff4757; 
+            --secondary: #70a1ff;
+            --success: #2ed573;
+            --card-bg: #ffffff;
+            --text-main: #2f3542;
+            --btn-text: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #222831;
+            --primary: #FF6B81; 
+            --secondary: #00ADB5; 
+            --success: #00C897; 
+            --card-bg: #393E46; 
+            --text-main: #EEEEEE;
+            --btn-text: #FFFFFF;
+        }
+
+        [data-theme="playful"] {
+            --bg-color: #FFF8EA;
+            --primary: #FF74B1;
+            --secondary: #A0BFE0;
+            --success: #9ECCA4;
+            --card-bg: #FFFFFF;
+            --text-main: #5C469C;
+            --btn-text: #ffffff;
+        }
+
+        [data-theme="ocean"] {
+            --bg-color: #E3F6FF;
+            --primary: #E76161; 
+            --secondary: #82AAE3;
+            --success: #70C5CE;
+            --card-bg: #FFFFFF;
+            --text-main: #2B3467;
+            --btn-text: #ffffff;
+        }
+
+        [data-theme="sunset"] {
+            --bg-color: #FFDEB4;
+            --primary: #FF7D7D;
+            --secondary: #B2A4FF;
+            --success: #6BCB77;
+            --card-bg: #FFF9CA;
+            --text-main: #5C469C;
+            --btn-text: #ffffff;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Arabic Font Support */
+        [lang="ar"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        [lang="ar"] h1, [lang="ar"] h2, [lang="ar"] h3, [lang="ar"] button {
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Fixed Global Selectors */
+        .top-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+        [dir="rtl"] .top-controls {
+            right: auto;
+            left: 15px;
+        }
+
+        .top-controls select {
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-family: inherit;
+            border: 2px solid var(--secondary);
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 70px 20px 20px 20px;
+            box-sizing: border-box;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--primary);
+        }
+
+        .screen { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .screen.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Buttons */
+        button {
+            font-family: 'Fredoka One', cursive;
+            background-color: var(--secondary);
+            color: var(--btn-text);
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 0px rgba(0,0,0,0.15);
+            transition: all 0.1s;
+            margin: 10px;
+            width: 90%;
+            max-width: 300px;
+        }
+
+        button:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0px rgba(0,0,0,0.15);
+        }
+
+        button.green-btn { background-color: var(--success); color: #ffffff; }
+        button.red-btn { background-color: var(--primary); color: #ffffff; }
+
+        /* Categories */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .grid button { width: 100%; margin: 0; padding: 20px 10px; font-size: 1rem; }
+        .grid button:last-child:nth-child(odd) { grid-column: 1 / -1; width: 50%; justify-self: center; }
+
+        /* Player Card Input */
+        .player-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 3px solid rgba(0,0,0,0.05);
+            transition: background-color 0.3s;
+        }
+
+        .avatar-selector { display: flex; justify-content: center; align-items: center; font-size: 3rem; margin-bottom: 15px; }
+        .avatar-btn { background: none; box-shadow: none; color: var(--secondary); font-size: 2rem; padding: 0 15px; width: auto; margin: 0; }
+        .avatar-btn:active { transform: scale(0.9); }
+
+        input[type="text"] {
+            width: 80%; padding: 12px; font-size: 1.2rem;
+            border: 2px solid rgba(0,0,0,0.1); border-radius: 10px;
+            text-align: center; font-family: inherit; margin-bottom: 15px;
+            outline: none; background: var(--bg-color); color: var(--text-main);
+        }
+        input[type="text"]:focus { border-color: var(--secondary); }
+
+        .player-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+        
+        /* FIXED: Player Chip Contrast */
+        .player-chip {
+            background: var(--bg-color); /* Swapped to bg-color for contrast against cards */
+            padding: 8px 15px; border-radius: 20px; font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 5px; color: var(--text-main);
+            border: 2px solid rgba(0,0,0,0.03); /* Subtle edge definition */
+        }
+        [data-theme="dark"] .player-chip {
+            border-color: rgba(255,255,255,0.05); /* Light edge in dark mode */
+        }
+
+        /* Pure Text 'x' button */
+        .remove-btn { 
+            display: inline-flex; justify-content: center; align-items: center;
+            width: 20px; height: 20px; border-radius: 6px; 
+            background-color: var(--primary); color: #FFFFFF; 
+            cursor: pointer; margin-left: 8px; font-size: 1rem; 
+            font-family: 'Nunito', sans-serif; font-weight: 800; line-height: 0; padding-bottom: 2px; box-sizing: border-box;
+            opacity: 0.6; transition: opacity 0.2s, transform 0.1s; 
+        }
+        [dir="rtl"] .remove-btn { margin-left: 0; margin-right: 8px; }
+        .remove-btn:active { opacity: 1; transform: scale(0.9); }
+        
+        /* Fixed visibility in dark mode */
+        [data-theme="dark"] .remove-btn { opacity: 1; color: #FFFFFF; }
+        [data-theme="dark"] .remove-btn:active { opacity: 1; }
+
+        /* NEW Peek Card Logic & Animations */
+        .peek-container {
+            width: 250px; height: 350px;
+            margin: 30px auto;
+            position: relative; 
+        }
+        
+        /* The smaller card hidden underneath */
+        .peek-bottom {
+            position: absolute;
+            bottom: 0; left: 0; 
+            width: 100%; height: 75%; 
+            background: var(--card-bg); border-radius: 20px; 
+            border: 4px solid var(--secondary); padding: 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.05);
+            transition: border-color 0.3s;
+            z-index: 1;
+        }
+
+        /* The main card sitting on top */
+        .peek-top {
+            position: absolute;
+            top: 0; left: 0; 
+            width: 100%; height: 100%;
+            background: var(--card-bg); border-radius: 20px; 
+            border: 4px solid var(--secondary); padding: 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+            z-index: 2;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            user-select: none; -webkit-user-select: none; touch-action: none;
+            cursor: grab;
+        }
+        .peek-top:active { cursor: grabbing; }
+
+        /* The class applied via JS when touched */
+        .peek-top.lifted {
+            transform: translateY(-75%); 
+        }
+        
+        .impostor-text { color: var(--primary); font-size: 2.2rem; font-family: inherit; }
+        .role-text { color: var(--success); font-size: 2rem; font-family: inherit; }
+
+        .timer-display { font-size: 5rem; font-family: inherit; font-weight: bold; color: var(--text-main); margin: 30px 0; }
+
+        /* Custom Modals */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        .modal.active { display: flex; animation: fadeIn 0.3s; }
+        .modal-content {
+            max-width: 400px; width: 90%; margin: 0; 
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="top-controls">
+    <select id="lang-select" onchange="changeLanguage(this.value)">
+        <option value="en">🇺🇸 English</option>
+        <option value="ar">🇸🇦 العربية</option>
+    </select>
+    <select id="theme-select" onchange="changeTheme(this.value)">
+        <option value="default" id="i18n-thDef">🎨 Default</option>
+        <option value="dark" id="i18n-thDark">🌙 Dark</option>
+        <option value="playful" id="i18n-thPlay">🍭 Playful</option>
+        <option value="ocean" id="i18n-thOcean">🌊 Ocean</option>
+        <option value="sunset" id="i18n-thSun">🌅 Sunset</option>
+    </select>
+</div>
+
+<div class="container">
+    
+    <div id="screen-categories" class="screen active">
+        <h1 id="i18n-selCat">Select Category</h1>
+        <p id="i18n-chooseDeck">Choose a deck to play with!</p>
+        <div class="grid" id="category-grid"></div>
+    </div>
+
+    <div id="screen-players" class="screen">
+        <h2 id="i18n-whoPlaying">Who is playing?</h2>
+        <div class="player-card">
+            <div class="avatar-selector" dir="ltr">
+                <button class="avatar-btn" onclick="changeAvatar(-1)">◀</button>
+                <span id="current-avatar">🐵</span>
+                <button class="avatar-btn" onclick="changeAvatar(1)">▶</button>
+            </div>
+            <input type="text" id="player-name" placeholder="Enter Name..." autocomplete="off">
+            <button onclick="addPlayer()" id="i18n-addPlayer">Add Player</button>
+        </div>
+        <div class="player-list" id="player-list"></div>
+        <br>
+        <button class="green-btn" onclick="goToSummary()" id="i18n-next">Next</button>
+    </div>
+
+    <div id="screen-summary" class="screen">
+        <h2 id="i18n-gameSum">Game Summary</h2>
+        <div class="player-card">
+            <h3><span id="i18n-catLabel">Category:</span> <span id="sum-category" style="color:var(--secondary)"></span></h3>
+            <p><strong><span id="i18n-playersLabel">Players</span> (<span id="sum-count"></span>):</strong></p>
+            <div class="player-list" id="sum-players"></div>
+            <p style="margin-top: 20px; font-weight: bold; opacity: 0.8;" id="i18n-passWarn">Pass the phone around. Make sure no one sees your screen!</p>
+        </div>
+        <button class="red-btn" onclick="modifyGame()" id="i18n-modify">Modify</button>
+        <button class="green-btn" onclick="startReveal()" id="i18n-startBtn">Start Game</button>
+    </div>
+
+    <div id="screen-reveal" class="screen">
+        <h2 id="reveal-header">Pass to Name</h2>
+        <p id="i18n-tapDesc">Press and hold the card to peek at your role!</p>
+        
+        <div class="peek-container" id="reveal-card">
+            
+            <div class="peek-bottom" id="card-back-side">
+                <h3 style="margin:0;" id="i18n-youAre">You are...</h3>
+                <div id="card-role" style="margin-top:20px; text-align:center;"></div>
+            </div>
+
+            <div class="peek-top" id="peek-top-card" onmousedown="liftCard(event)" ontouchstart="liftCard(event)">
+                <span id="card-avatar" style="font-size: 4rem;"></span>
+                <h2 id="card-name" style="margin:10px 0;">Name</h2>
+                <p style="opacity: 0.7; font-weight: bold;" id="i18n-tapLift">Press & Hold 👆</p>
+            </div>
+            
+        </div>
+
+        <button id="next-player-btn" class="green-btn" style="display:none;" onclick="nextReveal()">Next Player</button>
+    </div>
+
+    <div id="screen-timer" class="screen">
+        <h2 id="i18n-findImp">Find the Impostor!</h2>
+        <p id="i18n-startAsk">Start asking questions...</p>
+        <div class="timer-display" id="timer">00:00</div>
+        
+        <button class="green-btn" id="start-timer-btn" onclick="startTimer()"><span id="i18n-startTimer">Start Timer</span></button>
+        <button class="red-btn" onclick="endGame()" id="i18n-endGame">End Game</button>
+    </div>
+
+</div>
+
+<div id="alert-modal" class="modal">
+    <div class="modal-content player-card">
+        <h2 id="i18n-alertTitle" style="color: var(--primary); margin-top: 10px;">Hold up!</h2>
+        <p id="alert-msg" style="font-size: 1.1rem; font-weight: bold; margin: 15px 0; color: var(--text-main);"></p>
+        <button class="green-btn" onclick="closeAlert()" id="i18n-alertOk" style="width: 80%;">Got it</button>
+    </div>
+</div>
+
+<div id="end-modal" class="modal">
+    <div class="modal-content player-card">
+        <h1 id="i18n-gameOver">Game Over!</h1>
+        <h3 id="i18n-theImpWas" style="color: var(--text-main); margin-top: 5px;">The impostor was:</h3>
+        <div class="impostor-text" id="end-impostor-name" style="margin: 15px 0;">Name</div>
+        <div style="width: 100%; height: 2px; background: rgba(0,0,0,0.1); margin: 15px 0;"></div>
+        <h3 id="i18n-timeLabel" style="color: var(--text-main); margin: 0;">Time:</h3>
+        <div class="timer-display" id="end-time" style="font-size: 3rem; margin: 5px 0 20px 0; color: var(--secondary);">00:00</div>
+        <button class="green-btn" onclick="resetGame()" id="i18n-playAgain" style="width: 100%;">Play Again</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+        osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+        if (type === 'pop') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        } else if (type === 'flip') {
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        } else if (type === 'bell') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+            osc.start(); osc.stop(audioCtx.currentTime + 1);
+        }
+    }
+
+    const i18n = {
+        en: {
+            thDef: "🎨 Default", thDark: "🌙 Dark", thPlay: "🍭 Playful", thOcean: "🌊 Ocean", thSun: "🌅 Sunset",
+            selCat: "Select Category", chooseDeck: "Choose a deck to play with!", whoPlaying: "Who is playing?",
+            addPlayer: "Add Player", next: "Next", gameSum: "Game Summary", catLabel: "Category:", playersLabel: "Players",
+            passWarn: "Pass the phone around. Make sure no one sees your screen!", modify: "Modify", startBtn: "Start Game",
+            tapDesc: "Press and hold the card to peek at your role!", tapLift: "Press & Hold 👆", youAre: "You are...",
+            impostorTitle: "THE IMPOSTOR 🕵️‍♂️", impostorSub: "Try to blend in!", wordIs: "The word is:",
+            nextPlayer: "Next Player", findImp: "Find the Impostor!", startAsk: "Start asking questions...",
+            startTimer: "Start Timer", endGame: "End Game", gameOver: "Game Over!", theImpWas: "The impostor was:",
+            timeLabel: "Time:", playAgain: "Play Again", inputPlaceholder: "Enter Name...", passTo: "Pass to",
+            alertTitle: "Hold up!", alertOk: "Got it", needPlayers: "You need at least 3 players to play!"
+        },
+        ar: {
+            thDef: "🎨 الأساسي", thDark: "🌙 داكن", thPlay: "🍭 مرح", thOcean: "🌊 محيط", thSun: "🌅 غروب",
+            selCat: "اختر الفئة", chooseDeck: "اختر مجموعة للعب بها!", whoPlaying: "من سيلعب؟",
+            addPlayer: "إضافة لاعب", next: "التالي", gameSum: "ملخص اللعبة", catLabel: "الفئة:", playersLabel: "اللاعبون",
+            passWarn: "مرر الهاتف. تأكد من عدم رؤية أحد لشاشتك!", modify: "تعديل", startBtn: "ابدأ اللعبة",
+            tapDesc: "اضغط مطولاً على البطاقة لمعرفة دورك!", tapLift: "اضغط مطولاً 👆", youAre: "أنت...",
+            impostorTitle: "المحتال 🕵️‍♂️", impostorSub: "حاول أن تندمج!", wordIs: "الكلمة هي:",
+            nextPlayer: "اللاعب التالي", findImp: "ابحث عن المحتال!", startAsk: "ابدأ بطرح الأسئلة...",
+            startTimer: "ابدأ المؤقت", endGame: "إنهاء اللعبة", gameOver: "انتهت اللعبة!", theImpWas: "المحتال كان:",
+            timeLabel: "الوقت:", playAgain: "العب مرة أخرى", inputPlaceholder: "أدخل الاسم...", passTo: "مرر إلى",
+            alertTitle: "عذراً!", alertOk: "حسناً", needPlayers: "تحتاج إلى 3 لاعبين على الأقل للعب!"
+        }
+    };
+
+    const gameData = {
+        "Objects": {
+            name: { en: "Objects", ar: "أشياء" },
+            items: {
+                en: ["Smartphone", "Toothbrush", "Key", "Wallet", "Laptop", "Coffee Mug", "Sunglasses", "Television", "Pencil", "Umbrella", "Wristwatch", "Backpack", "Mirror", "Fork", "Scissors", "Pillow", "Flashlight", "Book", "Camera", "Headphones", "Comb", "Spoon", "Knife", "Plate", "Bowl", "Towel", "Soap", "Shampoo", "Toilet Paper", "Broom", "Mop", "Trash Can", "Iron", "Ironing Board", "Washing Machine", "Vacuum Cleaner", "Oven", "Microwave", "Toaster", "Blender", "Refrigerator", "Fan", "Heater", "Air Conditioner", "Lamp", "Chair", "Table", "Sofa", "Bed", "Carpet"],
+                ar: ["هاتف ذكي", "فرشاة أسنان", "مفتاح", "محفظة", "حاسوب محمول", "كوب قهوة", "نظارات شمسية", "تلفاز", "قلم رصاص", "مظلة", "ساعة يد", "حقيبة ظهر", "مرآة", "شوكة", "مقص", "وسادة", "مصباح يدوي", "كتاب", "كاميرا", "سماعات", "مشط", "ملعقة", "سكين", "طبق", "وعاء", "منشفة", "صابون", "شامبو", "ورق تواليت", "مكنسة", "ممسحة", "سلة مهملات", "مكواة", "طاولة كي", "غسالة", "مكنسة كهربائية", "فرن", "ميكروويف", "محمصة خبز", "خلاط", "ثلاجة", "مروحة", "مدفأة", "مكيف هواء", "مصباح", "كرسي", "طاولة", "أريكة", "سرير", "سجادة"]
+            }
+        },
+        "Jobs": {
+            name: { en: "Jobs", ar: "وظائف" },
+            items: {
+                en: ["Teacher", "Doctor", "Firefighter", "Chef", "Pilot", "Police Officer", "Software Engineer", "Artist", "Astronaut", "Baker", "Farmer", "Dentist", "Mechanic", "Plumber", "Scientist", "Actor", "Musician", "Journalist", "Lawyer", "Nurse", "Architect", "Accountant", "Electrician", "Carpenter", "Photographer", "Writer", "Designer", "Veterinarian", "Pharmacist", "Librarian", "Bus Driver", "Taxi Driver", "Flight Attendant", "Waiter", "Barista", "Cashier", "Receptionist", "Salesperson", "Manager", "CEO", "Secretary", "Security Guard", "Cleaner", "Hairdresser", "Barber", "Personal Trainer", "Coach", "Referee", "Judge", "Politician"],
+                ar: ["معلم", "طبيب", "إطفائي", "طاهي", "طيار", "ضابط شرطة", "مهندس برمجيات", "فنان", "رائد فضاء", "خباز", "مزارع", "طبيب أسنان", "ميكانيكي", "سباك", "عالم", "ممثل", "موسيقي", "صحفي", "محامي", "ممرضة", "مهندس معماري", "محاسب", "كهربائي", "نجار", "مصور", "كاتب", "مصمم", "طبيب بيطري", "صيدلي", "أمين مكتبة", "سائق حافلة", "سائق سيارة أجرة", "مضيف طيران", "نادل", "صانع قهوة", "أمين صندوق", "موظف استقبال", "بائع", "مدير", "مدير تنفيذي", "سكرتير", "حارس أمن", "عامل نظافة", "مصفف شعر", "حلاق", "مدرب شخصي", "مدرب", "حكم", "قاضي", "سياسي"]
+            }
+        },
+        "Food": {
+            name: { en: "Food", ar: "طعام" },
+            items: {
+                en: ["Pizza", "Sushi", "Hamburger", "Tacos", "Ice Cream", "Pasta", "Salad", "Steak", "Pancakes", "Waffles", "Chocolate", "Cheese", "Apple", "Banana", "Chicken Wings", "French Fries", "Donut", "Sandwich", "Soup", "Curry", "Rice", "Bread", "Eggs", "Bacon", "Sausage", "Hot Dog", "Burrito", "Noodles", "Dumplings", "Ramen", "Cake", "Pie", "Cookie", "Muffin", "Brownie", "Cupcake", "Yogurt", "Pudding", "Cereal", "Oatmeal", "Popcorn", "Chips", "Pretzel", "Nuts", "Grapes", "Orange", "Strawberry", "Watermelon", "Pineapple", "Mango"],
+                ar: ["بيتزا", "سوشي", "برغر", "تاكو", "آيس كريم", "معكرونة", "سلطة", "شريحة لحم", "فطائر", "وافل", "شوكولاتة", "جبن", "تفاح", "موز", "أجنحة دجاج", "بطاطس مقلية", "دونات", "شطيرة", "حساء", "كاري", "أرز", "خبز", "بيض", "لحم مقدد", "نقانق", "هوت دوج", "بوريتو", "نودلز", "زلابية", "رامين", "كعكة", "فطيرة", "بسكويت", "مافن", "براوني", "كاب كيك", "زبادي", "بودينغ", "حبوب", "دقيق الشوفان", "فشار", "رقائق بطاطس", "بريتزل", "مكسرات", "عنب", "برتقال", "فراولة", "بطيخ", "أناناس", "مانجو"]
+            }
+        },
+        "Places": {
+            name: { en: "Places", ar: "أماكن" },
+            items: {
+                en: ["Hospital", "School", "Supermarket", "Movie Theater", "Beach", "Library", "Airport", "Restaurant", "Gym", "Museum", "Park", "Bank", "Post Office", "Zoo", "Amusement Park", "Hotel", "Police Station", "Bakery", "Pharmacy", "Stadium", "Cafe", "Mall", "Bookstore", "Church", "Mosque", "Temple", "Castle", "Palace", "Factory", "Office", "Apartment", "House", "Villa", "Cabin", "Tent", "Farm", "Forest", "Mountain", "River", "Lake", "Ocean", "Desert", "Island", "Cave", "Bridge", "Tunnel", "Street", "Highway", "Alley", "Square"],
+                ar: ["مستشفى", "مدرسة", "سوبر ماركت", "سينما", "شاطئ", "مكتبة", "مطار", "مطعم", "صالة رياضية", "متحف", "حديقة", "بنك", "مكتب بريد", "حديقة حيوان", "مدينة ملاهي", "فندق", "مركز شرطة", "مخبز", "صيدلية", "ملعب", "مقهى", "مركز تسوق", "مكتبة لبيع الكتب", "كنيسة", "مسجد", "معبد", "قلعة", "قصر", "مصنع", "مكتب", "شقة", "منزل", "فيلا", "كوخ", "خيمة", "مزرعة", "غابة", "جبل", "نهر", "بحيرة", "محيط", "صحراء", "جزيرة", "كهف", "جسر", "نفق", "شارع", "طريق سريع", "زقاق", "ميدان"]
+            }
+        },
+        "Animals": {
+            name: { en: "Animals", ar: "حيوانات" },
+            items: {
+                en: ["Dog", "Cat", "Elephant", "Lion", "Tiger", "Giraffe", "Monkey", "Penguin", "Dolphin", "Whale", "Shark", "Bear", "Wolf", "Fox", "Rabbit", "Kangaroo", "Zebra", "Hippopotamus", "Crocodile", "Snake", "Horse", "Cow", "Pig", "Sheep", "Goat", "Chicken", "Duck", "Goose", "Turkey", "Pigeon", "Eagle", "Hawk", "Owl", "Parrot", "Ostrich", "Peacock", "Flamingo", "Swan", "Frog", "Toad", "Turtle", "Lizard", "Chameleon", "Iguana", "Spider", "Scorpion", "Crab", "Lobster", "Octopus", "Squid"],
+                ar: ["كلب", "قطة", "فيل", "أسد", "نمر", "زرافة", "قرد", "بطريق", "دلفين", "حوت", "قرش", "دب", "ذئب", "ثعلب", "أرنب", "كنغر", "حمار وحشي", "فرس النهر", "تمساح", "ثعبان", "حصان", "بقرة", "خنزير", "خروف", "ماعز", "دجاجة", "بطة", "إوزة", "ديك رومي", "حمامة", "نسر", "صقر", "بومة", "ببغاء", "نعامة", "طاووس", "نحام", "بجعة", "ضفدع", "علجوم", "سلحفاة", "سحلية", "حرباء", "إغوانا", "عنكبوت", "عقرب", "سرطان البحر", "جراد البحر", "أخطبوط", "حبار"]
+            }
+        },
+        "Movies": {
+            name: { en: "Movies", ar: "أفلام" },
+            items: {
+                en: ["Action", "Horror", "Comedy", "Sci-Fi", "Documentary", "Animated", "Musical", "Western", "Thriller", "Fantasy", "Mystery", "Historical", "Superhero", "Zombie", "Silent Film", "Romance", "Drama", "Crime", "Adventure", "Biography", "Family", "War", "Sports", "Music", "Short Film", "Epic", "Noir", "Spy", "Teen", "Slasher", "Monster", "Disaster", "Time Travel", "Cyberpunk", "Vampire", "Alien", "Space Opera", "Martial Arts", "Cult Classic", "Indie", "Blockbuster", "Parody", "Satire", "Slapstick", "Heist", "Legal", "Medical", "Neo-Noir", "Post-Apocalyptic", "Dark Comedy"],
+                ar: ["أكشن", "رعب", "كوميديا", "خيال علمي", "وثائقي", "رسوم متحركة", "موسيقي", "غربي", "إثارة", "فانتازيا", "غموض", "تاريخي", "أبطال خارقين", "زومبي", "فيلم صامت", "رومانسي", "دراما", "جريمة", "مغامرة", "سيرة ذاتية", "عائلي", "حرب", "رياضة", "موسيقى", "فيلم قصير", "ملحمي", "نوار", "تجسس", "مراهقين", "تقطيع", "وحوش", "كوارث", "سفر عبر الزمن", "سايبربانك", "مصاص دماء", "فضائيين", "أوبرا الفضاء", "فنون قتالية", "كالت كلاسيك", "مستقل", "بلوك باستر", "محاكاة ساخرة", "هجاء", "تهريج", "سرقة", "قانوني", "طبي", "نيو نوار", "ما بعد الكارثة", "كوميديا سوداء"]
+            }
+        },
+        "Sports": {
+            name: { en: "Sports", ar: "رياضة" },
+            items: {
+                en: ["Soccer", "Basketball", "Tennis", "Baseball", "Volleyball", "Swimming", "Golf", "Boxing", "Rugby", "Cricket", "Table Tennis", "Badminton", "Cycling", "Gymnastics", "Wrestling", "Skiing", "Snowboarding", "Ice Hockey", "Athletics", "Surfing", "American Football", "Water Polo", "Handball", "Rowing", "Diving", "Weightlifting", "Judo", "Taekwondo", "Karate", "Fencing", "Archery", "Shooting", "Equestrian", "Sailing", "Canoeing", "Kayaking", "Skateboarding", "Roller Skating", "Figure Skating", "Speed Skating", "Bobsleigh", "Curling", "Biathlon", "Triathlon", "Pentathlon", "Decathlon", "Marathon", "Sprint", "Relay", "Hurdles"],
+                ar: ["كرة القدم", "كرة السلة", "تنس", "بيسبول", "كرة الطائرة", "سباحة", "جولف", "ملاكمة", "رجبي", "كريكت", "تنس الطاولة", "تنس الريشة", "ركوب الدراجات", "جمباز", "مصارعة", "تزلج", "تزلج على الثلج", "هوكي الجليد", "ألعاب القوى", "ركوب الأمواج", "كرة القدم الأمريكية", "كرة الماء", "كرة اليد", "تجديف", "غطس", "رفع الأثقال", "جودو", "تايكوندو", "كاراتيه", "مبارزة", "رماية بالسهام", "رماية", "فروسية", "إبحار", "تجديف بالكانو", "كاياك", "تزلج باللوح", "تزلج بعجلات", "تزلج فني", "تزلج سريع", "زلاجة جماعية", "كيرلنغ", "بياثلون", "ترياثلون", "خماسي", "عشاري", "ماراثون", "عدو سريع", "تتابع", "حواجز"]
+            }
+        },
+        "Clothing": {
+            name: { en: "Clothing", ar: "ملابس" },
+            items: {
+                en: ["T-Shirt", "Jeans", "Jacket", "Sweater", "Dress", "Skirt", "Socks", "Shoes", "Hat", "Scarf", "Gloves", "Shorts", "Coat", "Tie", "Belt", "Underwear", "Swimsuit", "Boots", "Sandals", "Suit", "Shirt", "Pants", "Blouse", "Hoodie", "Cardigan", "Vest", "Raincoat", "Trench Coat", "Parka", "Poncho", "Pajamas", "Nightgown", "Bathrobe", "Slippers", "Sneakers", "High Heels", "Flats", "Loafers", "Cap", "Beanie", "Beret", "Helmet", "Sunglasses", "Glasses", "Watch", "Necklace", "Bracelet", "Ring", "Earrings"],
+                ar: ["قميص قطني", "جينز", "سترة", "كنزة", "فستان", "تنورة", "جوارب", "حذاء", "قبعة", "وشاح", "قفازات", "سروال قصير", "معطف", "ربطة عنق", "حزام", "ملابس داخلية", "ملابس سباحة", "أحذية طويلة", "صنادل", "بدلة", "قميص", "بنطال", "بلوزة", "هودي", "كارديجان", "صدرية", "معطف واق من المطر", "معطف خندق", "باركا", "بونشو", "بيجاما", "قميص نوم", "روب حمام", "شبشب", "حذاء رياضي", "كعب عالي", "حذاء مسطح", "حذاء بدون كعب", "قبعة رياضية", "قبعة صوفية", "بيريه", "خوذة", "نظارات شمسية", "نظارات", "ساعة", "قلادة", "سوار", "خاتم", "أقراط"]
+            }
+        },
+        "Vehicles": {
+            name: { en: "Vehicles", ar: "مركبات" },
+            items: {
+                en: ["Car", "Bus", "Train", "Airplane", "Helicopter", "Bicycle", "Motorcycle", "Boat", "Ship", "Submarine", "Truck", "Tractor", "Scooter", "Skateboard", "Hot Air Balloon", "Ambulance", "Fire Truck", "Police Car", "Taxi", "Spacecraft", "Van", "Minivan", "Pickup Truck", "Jeep", "SUV", "RV", "Camper", "Trailer", "Bulldozer", "Excavator", "Crane", "Forklift", "Dump Truck", "Garbage Truck", "Tow Truck", "Snowmobile", "Snowplow", "Hovercraft", "Jet Ski", "Yacht", "Ferry", "Cruise Ship", "Sailboat", "Canoe", "Kayak", "Raft", "Gondola", "Blimp", "Glider", "Drone"],
+                ar: ["سيارة", "حافلة", "قطار", "طائرة", "مروحية", "دراجة", "دراجة نارية", "قارب", "سفينة", "غواصة", "شاحنة", "جرار", "سكوتر", "لوح تزلج", "منطاد", "سيارة إسعاف", "سيارة إطفاء", "سيارة شرطة", "سيارة أجرة", "مركبة فضائية", "شاحنة صغيرة", "ميني فان", "بيك أب", "جيب", "دفع رباعي", "عربة سكن متنقلة", "عربة تخييم", "مقطورة", "جرافة", "حفارة", "رافعة", "رافعة شوكية", "شاحنة قلابة", "شاحنة قمامة", "شاحنة سحب", "عربة ثلج", "كاسحة ثلوج", "حوامة", "جت سكي", "يخت", "عبارة", "سفينة سياحية", "مركب شراعي", "زورق", "كاياك", "طوافة", "جندول", "منطاد موجه", "طائرة شراعية", "طائرة بدون طيار"]
+            }
+        }
+    };
+
+    const avatars = ['🐵', '🐶', '🐺', '🦊', '🐱', '🦁', '🐯', '🐴', '🦄', '🐮', '🐷', '🐭', '🐹', '🐰', '🐻', '🐨', '🐼', '🐸', '👽', '🤖'];
+    
+    let state = { lang: 'en', selectedCategoryKey: '', selectedItem: '', players: [], impostorIndex: -1, currentRevealIndex: 0, currentAvatarIndex: 0, timerInterval: null, secondsElapsed: 0 };
+
+    function changeTheme(themeName) {
+        playSound('pop');
+        if (themeName === 'default') document.body.removeAttribute('data-theme');
+        else document.body.setAttribute('data-theme', themeName);
+    }
+
+    function changeLanguage(lang) {
+        playSound('pop');
+        state.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
+        
+        const texts = i18n[lang];
+        document.getElementById('i18n-thDef').innerText = texts.thDef;
+        document.getElementById('i18n-thDark').innerText = texts.thDark;
+        document.getElementById('i18n-thPlay').innerText = texts.thPlay;
+        document.getElementById('i18n-thOcean').innerText = texts.thOcean;
+        document.getElementById('i18n-thSun').innerText = texts.thSun;
+        document.getElementById('i18n-selCat').innerText = texts.selCat;
+        document.getElementById('i18n-chooseDeck').innerText = texts.chooseDeck;
+        document.getElementById('i18n-whoPlaying').innerText = texts.whoPlaying;
+        document.getElementById('i18n-addPlayer').innerText = texts.addPlayer;
+        document.getElementById('i18n-next').innerText = texts.next;
+        document.getElementById('i18n-gameSum').innerText = texts.gameSum;
+        document.getElementById('i18n-catLabel').innerText = texts.catLabel;
+        document.getElementById('i18n-playersLabel').innerText = texts.playersLabel;
+        document.getElementById('i18n-passWarn').innerText = texts.passWarn;
+        document.getElementById('i18n-modify').innerText = texts.modify;
+        document.getElementById('i18n-startBtn').innerText = texts.startBtn;
+        document.getElementById('i18n-tapDesc').innerText = texts.tapDesc;
+        document.getElementById('i18n-tapLift').innerText = texts.tapLift;
+        document.getElementById('i18n-youAre').innerText = texts.youAre;
+        document.getElementById('next-player-btn').innerText = texts.nextPlayer; 
+        document.getElementById('i18n-findImp').innerText = texts.findImp;
+        document.getElementById('i18n-startAsk').innerText = texts.startAsk;
+        document.getElementById('i18n-startTimer').innerText = texts.startTimer;
+        document.getElementById('i18n-endGame').innerText = texts.endGame;
+        document.getElementById('i18n-gameOver').innerText = texts.gameOver;
+        document.getElementById('i18n-theImpWas').innerText = texts.theImpWas;
+        document.getElementById('i18n-timeLabel').innerText = texts.timeLabel;
+        document.getElementById('i18n-playAgain').innerText = texts.playAgain;
+        document.getElementById('player-name').placeholder = texts.inputPlaceholder;
+        document.getElementById('i18n-alertTitle').innerText = texts.alertTitle;
+        document.getElementById('i18n-alertOk').innerText = texts.alertOk;
+
+        initCategories(); 
+        renderPlayerList(); 
+    }
+
+    function initCategories() {
+        const grid = document.getElementById('category-grid');
+        grid.innerHTML = ''; 
+        Object.keys(gameData).forEach(key => {
+            const btn = document.createElement('button');
+            btn.innerText = gameData[key].name[state.lang]; 
+            btn.onclick = () => { playSound('pop'); state.selectedCategoryKey = key; showScreen('screen-players'); };
+            grid.appendChild(btn);
+        });
+    }
+
+    function changeAvatar(direction) {
+        playSound('pop'); state.currentAvatarIndex += direction;
+        if(state.currentAvatarIndex < 0) state.currentAvatarIndex = avatars.length - 1;
+        if(state.currentAvatarIndex >= avatars.length) state.currentAvatarIndex = 0;
+        document.getElementById('current-avatar').innerText = avatars[state.currentAvatarIndex];
+    }
+
+    function addPlayer() {
+        const input = document.getElementById('player-name');
+        const name = input.value.trim();
+        if(name === '') return;
+        state.players.push({ name: name, avatar: avatars[state.currentAvatarIndex] });
+        playSound('pop'); input.value = ''; changeAvatar(1); renderPlayerList();
+    }
+
+    function removePlayer(index) {
+        playSound('pop'); state.players.splice(index, 1); renderPlayerList();
+    }
+
+    function renderPlayerList() {
+        const list = document.getElementById('player-list');
+        list.innerHTML = '';
+        state.players.forEach((p, index) => {
+            const chip = document.createElement('div'); chip.className = 'player-chip';
+            chip.innerHTML = `<span>${p.avatar}</span> ${p.name} <span class="remove-btn" onclick="removePlayer(${index})">x</span>`;
+            list.appendChild(chip);
+        });
+    }
+
+    function modifyGame() { playSound('pop'); showScreen('screen-categories'); }
+
+    function closeAlert() {
+        playSound('pop');
+        document.getElementById('alert-modal').classList.remove('active');
+    }
+
+    function goToSummary() {
+        if(state.players.length < 3) {
+            playSound('pop');
+            document.getElementById('alert-msg').innerText = i18n[state.lang].needPlayers;
+            document.getElementById('alert-modal').classList.add('active');
+            return;
+        }
+        playSound('pop');
+        
+        const catData = gameData[state.selectedCategoryKey];
+        const items = catData.items[state.lang];
+        
+        state.selectedItem = items[Math.floor(Math.random() * items.length)];
+        state.impostorIndex = Math.floor(Math.random() * state.players.length);
+        
+        document.getElementById('sum-category').innerText = catData.name[state.lang];
+        document.getElementById('sum-count').innerText = state.players.length;
+        
+        const sumList = document.getElementById('sum-players');
+        sumList.innerHTML = '';
+        state.players.forEach(p => { sumList.innerHTML += `<div class="player-chip"><span>${p.avatar}</span> ${p.name}</div>`; });
+        showScreen('screen-summary');
+    }
+
+    function startReveal() {
+        playSound('pop');
+        state.currentRevealIndex = 0;
+        
+        const cardContainer = document.getElementById('reveal-card');
+        const topCard = document.getElementById('peek-top-card');
+        
+        topCard.style.transition = 'none';
+        topCard.classList.remove('lifted');
+        document.getElementById('next-player-btn').style.display = 'none';
+        cardContainer.style.transform = 'translateY(0)';
+        cardContainer.style.opacity = '1';
+        
+        void topCard.offsetWidth; 
+        topCard.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+        setupRevealCardData();
+        showScreen('screen-reveal');
+    }
+
+    function setupRevealCardData() {
+        const player = state.players[state.currentRevealIndex];
+        const isImpostor = (state.currentRevealIndex === state.impostorIndex);
+        const txt = i18n[state.lang];
+
+        document.getElementById('reveal-header').innerText = `${txt.passTo} ${player.name}`;
+        document.getElementById('card-avatar').innerText = player.avatar;
+        document.getElementById('card-name').innerText = player.name;
+
+        const roleDiv = document.getElementById('card-role');
+        const backSide = document.getElementById('card-back-side');
+
+        if (isImpostor) {
+            roleDiv.innerHTML = `<span class="impostor-text">${txt.impostorTitle}</span><p style="opacity:0.7; font-weight:bold;">${txt.impostorSub}</p>`;
+            backSide.style.borderColor = 'var(--primary)'; 
+        } else {
+            roleDiv.innerHTML = `<p style="opacity:0.7; font-weight:bold; margin:0;">${txt.wordIs}</p><span class="role-text">${state.selectedItem}</span>`;
+            backSide.style.borderColor = 'var(--secondary)'; 
+        }
+    }
+
+    function liftCard(e) {
+        if (!document.getElementById('screen-reveal').classList.contains('active')) return;
+        const topCard = document.getElementById('peek-top-card');
+        
+        if(!topCard.classList.contains('lifted')) {
+            playSound('flip'); 
+            topCard.classList.add('lifted');
+            
+            const btn = document.getElementById('next-player-btn');
+            if(btn.style.display === 'none') {
+                btn.style.opacity = '0';
+                btn.style.display = 'inline-block';
+                setTimeout(() => {
+                    btn.style.transition = 'opacity 0.3s ease-in';
+                    btn.style.opacity = '1';
+                }, 10);
+            }
+        }
+    }
+
+    function dropCard(e) {
+        const topCard = document.getElementById('peek-top-card');
+        if(topCard && topCard.classList.contains('lifted')) {
+            playSound('pop'); 
+            topCard.classList.remove('lifted');
+        }
+    }
+
+    document.addEventListener('mouseup', dropCard);
+    document.addEventListener('touchend', dropCard);
+
+    function nextReveal() {
+        playSound('pop');
+        const btn = document.getElementById('next-player-btn');
+        const cardContainer = document.getElementById('reveal-card');
+        const topCard = document.getElementById('peek-top-card');
+        
+        btn.style.transition = 'opacity 0.2s';
+        btn.style.opacity = '0';
+        
+        setTimeout(() => {
+            btn.style.display = 'none';
+            btn.style.opacity = '1'; 
+
+            cardContainer.style.transition = 'transform 0.4s ease-in, opacity 0.4s ease-in';
+            cardContainer.style.transform = 'translateY(100vh)';
+            cardContainer.style.opacity = '0';
+
+            setTimeout(() => {
+                state.currentRevealIndex++;
+                if (state.currentRevealIndex < state.players.length) {
+                    
+                    topCard.style.transition = 'none';
+                    void topCard.offsetWidth; 
+
+                    setupRevealCardData(); 
+
+                    cardContainer.style.transition = 'none';
+                    cardContainer.style.transform = 'translateY(-100vh)';
+                    void cardContainer.offsetWidth; 
+
+                    cardContainer.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease-out';
+                    cardContainer.style.transform = 'translateY(0)';
+                    cardContainer.style.opacity = '1';
+                    
+                    setTimeout(() => { topCard.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; }, 50);
+
+                } else {
+                    cardContainer.style.transform = 'translateY(0)';
+                    cardContainer.style.opacity = '1';
+                    showScreen('screen-timer');
+                }
+            }, 400); 
+        }, 200); 
+    }
+
+    function startTimer() {
+        playSound('bell');
+        document.getElementById('start-timer-btn').style.display = 'none';
+        state.timerInterval = setInterval(() => {
+            state.secondsElapsed++;
+            const mins = String(Math.floor(state.secondsElapsed / 60)).padStart(2, '0');
+            const secs = String(state.secondsElapsed % 60).padStart(2, '0');
+            document.getElementById('timer').innerText = `${mins}:${secs}`;
+        }, 1000);
+    }
+
+    function endGame() {
+        playSound('bell');
+        clearInterval(state.timerInterval);
+        
+        const impostor = state.players[state.impostorIndex];
+        document.getElementById('end-impostor-name').innerHTML = `<span>${impostor.avatar}</span> ${impostor.name}`;
+        document.getElementById('end-time').innerText = document.getElementById('timer').innerText;
+        document.getElementById('end-modal').classList.add('active');
+    }
+
+    function resetGame() {
+        playSound('pop');
+        document.getElementById('end-modal').classList.remove('active');
+        state.secondsElapsed = 0;
+        document.getElementById('timer').innerText = "00:00";
+        document.getElementById('start-timer-btn').style.display = 'inline-block';
+        showScreen('screen-categories');
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    initCategories();
+
+</script>
+</body>
+</html>
